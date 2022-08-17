@@ -6,7 +6,7 @@ let _datatableVersion = "";
 
 /* Get the time stamp of the last update to the production_data table */
 export async function getMetaInformation() {
-  const uri = "/api/meta-information";
+  const uri = "https://rosecityresource.streetroots.org/api/meta-information";
   const last_update = await fetch(uri)
     .catch((e) => {
       console.error(e);
@@ -67,8 +67,8 @@ export async function addUserDistancesToRecords(records) {
 export async function getRecords() {
   const uri =
     getQueryStringParameterValue("datatable") === "staging"
-      ? "/api/query-staging"
-      : "/api/query";
+      ? "https://rosecityresource.streetroots.org/api/query-staging"
+      : "https://rosecityresource.streetroots.org/api/query";
 
   try {
     const queryResponse = await fetch(uri);
