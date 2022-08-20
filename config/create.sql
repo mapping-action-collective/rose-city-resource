@@ -170,3 +170,21 @@ CREATE FUNCTION change_password(in _email character varying (128), in _password 
   SET password=_password
   WHERE email = _email;
 ' LANGUAGE sql;
+
+
+-- fields for production_data
+-- general_category, 
+-- main_category, 
+-- parent_organization, X
+-- listing, X
+-- service_description, X 
+-- covid_message, X
+-- street, X
+-- street2, X
+-- city, X
+-- postal_code, X
+-- website, X
+-- hours X
+-- phone 
+-- id
+

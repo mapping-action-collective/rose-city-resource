@@ -3,7 +3,7 @@ module.exports = (app, pool) => {
     try {
 
       /* Pull the listing table and parse into JSON */
-      await pool.query("SELECT * FROM production_data", async (sqlerr, sqlres) => {
+      await pool.query("SELECT * FROM rcr_preview_data", async (sqlerr, sqlres) => {
         if (sqlerr) {
           if (process.env.NODE_ENV == undefined || process.env.NODE_ENV !== "production") {
             try {

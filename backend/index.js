@@ -55,15 +55,21 @@ require("./routes/meta-information")(app, pool);
 require("./routes/admin")(app, pool);
 
 /* Check for database connectivity and provide a human-friendly message on failure */
-const testDatabaseQuery = () => {
-  pool.query(`select last_update from production_meta`, (err, res) => {
-    if (err) {
-      console.error('Error connnecting to the database!');
-      if (keys.DATABASE_URL === undefined || keys.DATABASE_URL === null || keys.DATABASE_URL === '') {
-        console.error('Please check that the DATABASE_URL environment variable is correct. See comments in nodeKeys.js for further information.');
-      }
-    }
-  });
+const testDatabaseQuery = async () => {
+  // const response = await pool.query(`SELECT * FROM preview_listings`)
+  // const response = await pool.query(CREATE_PREVIEW_TABLE);
+  // if (response) {
+  //   console.log(response.rows[0])
+  // }
+
+  // pool.query(`select last_update from production_meta`, (err, res) => {
+  //   if (err) {
+  //     console.error('Error connnecting to the database!');
+  //     if (keys.TEMP_DATABASE_URL_TESTING_ONLY === undefined || keys.TEMP_DATABASE_URL_TESTING_ONLY === null || keys.TEMP_DATABASE_URL_TESTING_ONLY === '') {
+  //       console.error('Please check that the TEMP_DATABASE_URL_TESTING_ONLY environment variable is correct. See comments in nodeKeys.js for further information.');
+  //     }
+  //   }
+  // });
 }
 testDatabaseQuery();
 
@@ -84,10 +90,12 @@ if (process.env.NODE_ENV === "production") {
   app.use("*", express.static(frontEndPath, staticOptions))
 }
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT;
 app.listen(PORT);
+console.log(`SERVER IS RUNNING ON PORT ${PORT}`)
 
 const Airtable = require("airtable");
+const { create } = require('domain');
 require("dotenv").config();
 
 // This is the CURRENT test base as of 8/17/22
@@ -96,34 +104,317 @@ const base = new Airtable({apiKey: process.env.AIRTABLE_API_KEY}).base(
   "app1aef4m31bbo69J"
 );
 
-// phone table ID is tblq6FE6zx0PNfOHa
-// listings table ID is tbl7pOb6TegGAmm4l
+const DATABASE_FIELDS = [
+  'general_category',
+  'main_category',
+  'parent_organization',
+  'listing',
+  'service_description',
+  'covid_message',
+  'street',
+  'street2',
+  'city',
+  'postal_code',
+  'website',
+  'hours',
+  'lat',
+  'lon',
+  'phone',
+  'asset_id',
+];
 
-base("UPDATE THIS TABLE")
-  .select({
-    // Selecting the first 3 records in "Parent Orgs" Groups (Grid view):
-    maxRecords: 3,
-    view: '"Parent Orgs" Groups (Grid view)',
-  })
-  .eachPage(
-    function page(records, fetchNextPage) {
-      // This function (`page`) will get called for each page of records.
+const FIELDS = [
+  "general_category",
+  "main_category",
+  "parent_organization",
+  "listing",
+  "service_description",
+  "covid_message",
+  "street",
+  "street2",
+  "city",
+  "postal_code",
+  "website",
+  "hours",
+  "lat",
+  "lon",
+  "phone_1",
+  "phone_1_label",
+  "phone_2",
+  "phone_2_label",
+  "phone_3",
+  "phone_3_label",
+  "asset_id",
+];
 
-      records.forEach(function (record) {
-        console.log("Retrieved", record.get("asset_id"));
-      });
-
-      // To fetch the next page of records, call `fetchNextPage`.
-      // If there are more records, `page` will get called again.
-      // If there are no more records, `done` will get called.
-      fetchNextPage();
-    },
-    function done(err) {
-      if (err) {
-        console.error(err);
-        return;
-      }
+const createListing = (result) => {
+  let listing = {};
+  const fields = result.fields;
+  Object.keys(fields).map((field) => {
+    if (FIELDS.includes(field)) {
+      listing[field] = fields[field];
     }
-  );
+  });
+  listing = formatId(listing);
+  listing = formatPhone(listing);
+  console.log(listing);
+  return listing;
+}
 
-  // FROM DOCUMENTATION FOUND HERE: documentation: https://airtable.com/app1aef4m31bbo69J/api/docs#javascript/authentication
+
+// base("CURRENT DATA").select({view: "Clean Data", maxRecords: 4}).all().then(results => {
+//   // 1. Filter out fields we don't need
+//   results = results.map(result => {
+//     let listing = createListing(result);
+//     // write to postgres here
+
+//     return listing;
+//   })
+// }).catch(err => console.error(err));
+
+// The API expects "phone" to be a single string that includes all phone labels and numbers, separated by commas
+// Example string: "Main Line:(503)555-5555,Crisis Line:800-424-1325"
+const PHONE_FIELDS = [
+  "phone_1",
+  "phone_1_label",
+  "phone_2",
+  "phone_2_label",
+  "phone_3",
+  "phone_3_label",
+];
+
+const formatPhone = (record) => {
+  let phoneString = '';
+  if (record.phone_1_label) {
+    phoneString += record.phone_1_label + ':';
+  }
+  if (record.phone_1) {
+    phoneString += record.phone_1 + ',';
+  }
+  if (record.phone_2_label) {
+    phoneString += record.phone_2_label + ":";
+  }
+  if (record.phone_2) {
+    phoneString += record.phone_2 + ",";
+  }
+  if (record.phone_3_label) {
+    phoneString += record.phone_3_label + ":";
+  }
+  if (record.phone_3) {
+    phoneString += record.phone_3 + ",";
+  }
+  // Remove final comma to work around FE formatting
+  phoneString = phoneString.slice(0, -1)
+  record.phone = phoneString;
+  return record;
+}
+
+const formatId = record => {
+  record.id = record.asset_id;
+  return record;
+}
+
+// airtable DOCUMENTATION FOUND HERE: documentation: https://airtable.com/app1aef4m31bbo69J/api/docs#javascript/authentication
+
+// DATA TABLE FIELDS FOR REFERENCE ONLY ----------------------------
+// general_category, main_category, parent_organization, listing, 
+// service_ description, covid_message, street, street2, city, 
+// postal_code, website, hours, phone, id  
+
+// SQL helper strings ----------------------------------------
+
+const DROP_PREVIEW_TABLE = `DROP TABLE IF EXISTS preview_data`;
+
+const CREATE_PREVIEW_TABLE = `
+  CREATE TABLE IF NOT EXISTS rcr_preview_data (
+    general_category TEXT,
+    main_category TEXT,  
+    parent_organization TEXT,
+    listing TEXT,
+    service_description TEXT, 
+    covid_message TEXT,
+    street TEXT,
+    street2 TEXT,
+    city TEXT,
+    postal_code TEXT,
+    website TEXT,
+    hours TEXT,
+    phone TEXT,
+    lat TEXT,
+    lon TEXT,
+    id INT PRIMARY KEY NOT NULL
+  );
+`;
+const CREATE_PRODUCTION_TABLE = `
+  CREATE TABLE production_data AS SELECT * FROM preview_data;
+`
+
+// const INSERT_INTO_PREVIEW_TABLE = `
+//   INSERT INTO rcr_preview_data (
+//     general_category, main_category, parent_organization, listing, 
+//     service_description, covid_message, street, street2, city, 
+//     postal_code, website, hours, phone, id, lat, lon) 
+//   VALUES (
+//     ${general_category}, ${main_category}, ${parent_organization}, ${listing}, ${service_description},
+//     ${covid_message}, ${street}, ${street2}, ${city}, ${postal_code}, ${website}, ${hours}, ${phone}, ${id})
+//   RETURNING *;
+// `
+
+const INSERT_INTO_PREVIEW_TABLE = `
+  INSERT INTO rcr_preview_data (
+    general_category, main_category, parent_organization, listing, 
+    service_description, covid_message, street, street2, city, 
+    postal_code, website, hours, phone, id, lat, lon) 
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+  RETURNING *;
+`;
+
+const writeListingToPreview = async record => {
+  try {
+    const general_category = record.general_category ?? ""
+    const main_category = record.main_category ?? "";
+
+    const parent_organization = record.parent_organization ?? "";
+    const listing = record.listing ?? "";
+    const service_description = record.service_description ?? "";
+    const covid_message = record.covid_message ?? "";
+    const street = record.street ?? "";
+    const street2 = record.street2 ?? "";
+    const city = record.city ?? "";
+    const postal_code = record.postal_code ?? "";
+    const website = record.website ?? "";
+    const hours = record.hours ?? "";
+    const phone = record.phone ?? "";
+    const id = record.id ?? "";
+    const lat = record.lat ?? "";
+    const lon = record.lon ?? "";
+    // const { general_category, main_category, parent_organization, listing, 
+    //   service_description, covid_message, street, street2, city, 
+    //   postal_code, website, hours, phone, id, lat, lon  
+    // } = record ?? "";
+
+    // const response = await pool.query(
+    //   `INSERT INTO rcr_preview_data (
+    //     general_category, main_category, parent_organization, listing, 
+    //     service_description, covid_message, street, street2, city, 
+    //     postal_code, website, hours, phone, id, lat, lon) 
+    //   VALUES (
+    //     ${general_category}, ${main_category}, ${parent_organization}, ${listing}, ${service_description},
+    //     ${covid_message}, ${street}, ${street2}, ${city}, ${postal_code}, ${website}, ${hours}, ${phone}, ${id})
+    //   RETURNING *;`
+    // );
+
+    const response = await pool.query(INSERT_INTO_PREVIEW_TABLE, [
+      general_category, main_category, parent_organization, listing,
+      service_description, covid_message, street, street2, city,
+      postal_code, website, hours, phone, id, lat, lon
+    ]);
+    if (response) {
+      console.log(response.rows);
+    }
+
+  } catch (error) {
+    console.error(error.message)
+    return;
+  }
+}
+
+
+const promotePreviewToProd = async () => {
+  try {
+  await pool.query('DROP TABLE IF EXISTS production_data');
+  const success = await pool.query(CREATE_PRODUCTION_TABLE);
+  console.log(success.rows);
+  } catch (error) {
+    console.error(error.message)
+    return;    
+  }
+}
+
+const dropAndRecreatePreviewTable = async () => {
+  try {
+    await pool.query(DROP_PREVIEW_TABLE);
+    await pool.query(CREATE_PREVIEW_TABLE);
+  } catch (error) {
+    console.error(error.message);
+    return
+  }
+}
+
+// 1 test listing, properly formatted
+const TEST_LISTING = 
+  {
+    asset_id: 4,
+    main_category: "Day Services / Hospitality",
+    hours: "Drop-in hours: 24/7",
+    general_category: "Day Services",
+    parent_organization: "Portland Rescue Mission",
+    street: "111 W Burnside St.",
+    postal_code: "97209",
+    city: "Portland",
+    listing: "Portland Rescue Mission",
+    id: 4,
+    phone: ""
+  }
+
+// Array of 4 unique test listings, properly formatted
+const TEST_LISTINGS = [
+  {
+    asset_id: 1,
+    main_category: "Day Services / Hospitality",
+    street2: "Ste. 100",
+    website: "www.joinpdx.com",
+    service_description: "Outdoor mail service, noon.-2 p.m. Mon.,Wed., Fri. Restrooms, phone charging, internet access, mail services, family area, showers including ADA/family shower, hygiene items and referral services. All first come, first served. Many offered on time-barter basis. Weekly partner services include B.E.S.T., SSI, CCC Employment. Monthly services include OHP and legal clinics. 1435 NE 81st Ave., Ste. 100. (Closed every 2nd Fri.) \n",
+    hours: "Mon., Wed., Fri., 12pm-3pm",
+    covid_message: "HOURS CHANGED DUE TO COVID",
+    general_category: "Day Services",
+    parent_organization: "JOIN",
+    phone_1: "(503) 232-2031",
+    street: "1435 NE 81st Ave.",
+    postal_code: "97213",
+    city: "Portland ",
+    listing: "JOIN Day Space",
+    phone_1_label: "Main Line",
+    id: 1,
+    phone: "Main Line:(503) 232-2031"
+  },
+  {
+    asset_id: 2,
+    main_category: "Day Services / Hospitality",
+    service_description: "Resource Center at the Bud Clark Commons. Bathrooms, clothing, showers, laundry and mail services available. Clothing sign-up hours: See front desk. Shower, laundry, sign-up hours: 8:00am. ",
+    hours: "TB Testing: 1:15-3:15pm Mon, Thurs. Weekly, daily lockers available. Get info and signup for shelters during Center hours or by calling Center. Phone hours: 8:00am-4:00pm Mon-Fri. 650 NW Irving Street, 8:00am-4:00pm every day. ",
+    covid_message: "HOURS CHANGED DUE TO COVID",
+    general_category: "Day Services",
+    parent_organization: "Transition Projects",
+    phone_1: "(503) 280-4700",
+    street: "650 NW Irving St.",
+    postal_code: "97209",
+    city: "Portland ",
+    listing: "Transition Projects",
+    phone_1_label: "Main Line",
+    id: 2,
+    phone: "Main Line:(503) 280-4700"
+  },
+  {
+    asset_id: 3,
+    main_category: "Day Services / Hospitality",
+    website: "www.operationnightwatch.org",
+    service_description: "Downtown service will be closed. The Southeast Center will be open during the\n" +
+      "usual times and service will be provided from the parking lot of the Clackamas Service\n" +
+      "Center.",
+    hours: "7-11 p.m. Thurs.-Sat.",
+    covid_message: "TEMPORARY COVID RESPONSE SERVICE",
+    general_category: "Day Services",
+    parent_organization: "Operation Nightwatch",
+    phone_1: "(503) 220-0438",
+    street: "1432 SW 13th Ave.",
+    postal_code: "97201",
+    city: "Portland ",
+    listing: "Operation Nightwatch",
+    phone_1_label: "Main Line",
+    id: 3,
+    phone: "Main Line:(503) 220-0438"
+  }
+]
+
+// writeListingToPreview(TEST_LISTINGS[0])
