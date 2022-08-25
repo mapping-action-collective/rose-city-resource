@@ -147,7 +147,7 @@ const FIELDS = [
   "asset_id",
 ];
 
-const createListing = (result) => {
+const formatListing = (result) => {
   let listing = {};
   const fields = result.fields;
   Object.keys(fields).map((field) => {
@@ -157,20 +157,18 @@ const createListing = (result) => {
   });
   listing = formatId(listing);
   listing = formatPhone(listing);
-  console.log(listing);
   return listing;
 }
 
-
-// base("CURRENT DATA").select({view: "Clean Data", maxRecords: 4}).all().then(results => {
-//   // 1. Filter out fields we don't need
-//   results = results.map(result => {
-//     let listing = createListing(result);
-//     // write to postgres here
-
-//     return listing;
-//   })
-// }).catch(err => console.error(err));
+base("CURRENT DATA").select({view: "Clean Data", maxRecords: 4}).all().then(results => {
+  // 1. Filter out fields we don't use in the DB
+  results = results.map(result => {
+    let listing = formatListing(result);
+    // GEOCODE HERE AND ADD COORDS TO LISTING
+    writeListingToPreview(listing);
+    // return listing;
+  })
+}).catch(err => console.error(err));
 
 // The API expects "phone" to be a single string that includes all phone labels and numbers, separated by commas
 // Example string: "Main Line:(503)555-5555,Crisis Line:800-424-1325"
@@ -237,6 +235,7 @@ const CREATE_PREVIEW_TABLE = `
     street2 TEXT,
     city TEXT,
     postal_code TEXT,
+    county TEXT,
     website TEXT,
     hours TEXT,
     phone TEXT,
@@ -264,8 +263,8 @@ const INSERT_INTO_PREVIEW_TABLE = `
   INSERT INTO rcr_preview_data (
     general_category, main_category, parent_organization, listing, 
     service_description, covid_message, street, street2, city, 
-    postal_code, website, hours, phone, id, lat, lon) 
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+    postal_code, website, hours, phone, id, lat, lon, county) 
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
   RETURNING *;
 `;
 
@@ -288,6 +287,7 @@ const writeListingToPreview = async record => {
     const id = record.id ?? "";
     const lat = record.lat ?? "";
     const lon = record.lon ?? "";
+    const county = record.county ?? "";
     // const { general_category, main_category, parent_organization, listing, 
     //   service_description, covid_message, street, street2, city, 
     //   postal_code, website, hours, phone, id, lat, lon  
@@ -307,7 +307,7 @@ const writeListingToPreview = async record => {
     const response = await pool.query(INSERT_INTO_PREVIEW_TABLE, [
       general_category, main_category, parent_organization, listing,
       service_description, covid_message, street, street2, city,
-      postal_code, website, hours, phone, id, lat, lon
+      postal_code, website, hours, phone, id, lat, lon, county
     ]);
     if (response) {
       console.log(response.rows);
@@ -340,6 +340,8 @@ const dropAndRecreatePreviewTable = async () => {
     return
   }
 }
+
+// dropAndRecreatePreviewTable();
 
 // 1 test listing, properly formatted
 const TEST_LISTING = 
