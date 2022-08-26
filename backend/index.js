@@ -160,27 +160,45 @@ const formatListing = (result) => {
   return listing;
 }
 
-base("CURRENT DATA").select({view: "Clean Data", maxRecords: 4}).all().then(results => {
-  // 1. Filter out fields we don't use in the DB
-  results = results.map(result => {
-    let listing = formatListing(result);
-    // GEOCODE HERE AND ADD COORDS TO LISTING
-    writeListingToPreview(listing);
-    // return listing;
-  })
-}).catch(err => console.error(err));
+async function runAirtableEtl() {
+  try {
+    base("CURRENT DATA")
+      // .select({view: "Clean Data", maxRecords: 4})
+      .select({view: "Clean Data"})
+      .all()
+      .then((results) => {
+        // Write results to Postgres
+        (async() => {
+          const client = await pool.connect();
+          try {
+            results.forEach((result) => {
+              let listing = formatListing(result);
+              if (listing.id > 112) {
+              (async() => {
+                await writeListingToPreview(listing, client);
+                // client.release();
+              })()
+              }
+            });
+          } catch (error) {
+            console.log('error in ELT catch', error.message);
+            return;
+          } 
+        })();
+      })
+      .catch((err) => console.error(err));
+  } catch (error) {
+    console.log(error)
+    return;
+  }
+}
+
+
+
+// runAirtableEtl();
 
 // The API expects "phone" to be a single string that includes all phone labels and numbers, separated by commas
 // Example string: "Main Line:(503)555-5555,Crisis Line:800-424-1325"
-const PHONE_FIELDS = [
-  "phone_1",
-  "phone_1_label",
-  "phone_2",
-  "phone_2_label",
-  "phone_3",
-  "phone_3_label",
-];
-
 const formatPhone = (record) => {
   let phoneString = '';
   if (record.phone_1_label) {
@@ -248,17 +266,6 @@ const CREATE_PRODUCTION_TABLE = `
   CREATE TABLE production_data AS SELECT * FROM preview_data;
 `
 
-// const INSERT_INTO_PREVIEW_TABLE = `
-//   INSERT INTO rcr_preview_data (
-//     general_category, main_category, parent_organization, listing, 
-//     service_description, covid_message, street, street2, city, 
-//     postal_code, website, hours, phone, id, lat, lon) 
-//   VALUES (
-//     ${general_category}, ${main_category}, ${parent_organization}, ${listing}, ${service_description},
-//     ${covid_message}, ${street}, ${street2}, ${city}, ${postal_code}, ${website}, ${hours}, ${phone}, ${id})
-//   RETURNING *;
-// `
-
 const INSERT_INTO_PREVIEW_TABLE = `
   INSERT INTO rcr_preview_data (
     general_category, main_category, parent_organization, listing, 
@@ -268,7 +275,7 @@ const INSERT_INTO_PREVIEW_TABLE = `
   RETURNING *;
 `;
 
-const writeListingToPreview = async record => {
+const writeListingToPreview = async (record, client) => {
   try {
     const general_category = record.general_category ?? ""
     const main_category = record.main_category ?? "";
@@ -304,15 +311,15 @@ const writeListingToPreview = async record => {
     //   RETURNING *;`
     // );
 
-    const response = await pool.query(INSERT_INTO_PREVIEW_TABLE, [
+    const response = await client.query(INSERT_INTO_PREVIEW_TABLE, [
       general_category, main_category, parent_organization, listing,
       service_description, covid_message, street, street2, city,
       postal_code, website, hours, phone, id, lat, lon, county
     ]);
     if (response) {
-      console.log(response.rows);
+      console.log(response.rows[0]);
     }
-
+    // await client.release();
   } catch (error) {
     console.error(error.message)
     return;
@@ -343,80 +350,56 @@ const dropAndRecreatePreviewTable = async () => {
 
 // dropAndRecreatePreviewTable();
 
-// 1 test listing, properly formatted
-const TEST_LISTING = 
-  {
-    asset_id: 4,
-    main_category: "Day Services / Hospitality",
-    hours: "Drop-in hours: 24/7",
-    general_category: "Day Services",
-    parent_organization: "Portland Rescue Mission",
-    street: "111 W Burnside St.",
-    postal_code: "97209",
-    city: "Portland",
-    listing: "Portland Rescue Mission",
-    id: 4,
-    phone: ""
-  }
 
-// Array of 4 unique test listings, properly formatted
-const TEST_LISTINGS = [
-  {
-    asset_id: 1,
-    main_category: "Day Services / Hospitality",
-    street2: "Ste. 100",
-    website: "www.joinpdx.com",
-    service_description: "Outdoor mail service, noon.-2 p.m. Mon.,Wed., Fri. Restrooms, phone charging, internet access, mail services, family area, showers including ADA/family shower, hygiene items and referral services. All first come, first served. Many offered on time-barter basis. Weekly partner services include B.E.S.T., SSI, CCC Employment. Monthly services include OHP and legal clinics. 1435 NE 81st Ave., Ste. 100. (Closed every 2nd Fri.) \n",
-    hours: "Mon., Wed., Fri., 12pm-3pm",
-    covid_message: "HOURS CHANGED DUE TO COVID",
-    general_category: "Day Services",
-    parent_organization: "JOIN",
-    phone_1: "(503) 232-2031",
-    street: "1435 NE 81st Ave.",
-    postal_code: "97213",
-    city: "Portland ",
-    listing: "JOIN Day Space",
-    phone_1_label: "Main Line",
-    id: 1,
-    phone: "Main Line:(503) 232-2031"
-  },
-  {
-    asset_id: 2,
-    main_category: "Day Services / Hospitality",
-    service_description: "Resource Center at the Bud Clark Commons. Bathrooms, clothing, showers, laundry and mail services available. Clothing sign-up hours: See front desk. Shower, laundry, sign-up hours: 8:00am. ",
-    hours: "TB Testing: 1:15-3:15pm Mon, Thurs. Weekly, daily lockers available. Get info and signup for shelters during Center hours or by calling Center. Phone hours: 8:00am-4:00pm Mon-Fri. 650 NW Irving Street, 8:00am-4:00pm every day. ",
-    covid_message: "HOURS CHANGED DUE TO COVID",
-    general_category: "Day Services",
-    parent_organization: "Transition Projects",
-    phone_1: "(503) 280-4700",
-    street: "650 NW Irving St.",
-    postal_code: "97209",
-    city: "Portland ",
-    listing: "Transition Projects",
-    phone_1_label: "Main Line",
-    id: 2,
-    phone: "Main Line:(503) 280-4700"
-  },
-  {
-    asset_id: 3,
-    main_category: "Day Services / Hospitality",
-    website: "www.operationnightwatch.org",
-    service_description: "Downtown service will be closed. The Southeast Center will be open during the\n" +
-      "usual times and service will be provided from the parking lot of the Clackamas Service\n" +
-      "Center.",
-    hours: "7-11 p.m. Thurs.-Sat.",
-    covid_message: "TEMPORARY COVID RESPONSE SERVICE",
-    general_category: "Day Services",
-    parent_organization: "Operation Nightwatch",
-    phone_1: "(503) 220-0438",
-    street: "1432 SW 13th Ave.",
-    postal_code: "97201",
-    city: "Portland ",
-    listing: "Operation Nightwatch",
-    phone_1_label: "Main Line",
-    id: 3,
-    phone: "Main Line:(503) 220-0438"
-  }
-]
+// ONE-TIME-USE GEOCODING STUFF -----------------------
+// You only need to run this ONCE to populate the Airtable
+const {EXISTING_DATA} = require("../existingData");
 
-// writeListingToPreview(TEST_LISTINGS[0])
+async function geocode() {
+  try {
+    base("CURRENT DATA")
+      .select({view: "Clean Data"})
+      .all()
+      .then((results) => {
+        // 1. Filter out fields we don't use in the DB
+        results = results.map((result) => {
+          let listing = formatListing(result);
+          let airtableId = result.id;
+          EXISTING_DATA.forEach((obj) => {
+            if (listing.street !== null && obj.street === listing.street) {
+              updateAirtableLatLon({ lat: obj.lat, lon: obj.lon, id: airtableId,
+              });
+            }
+          });
+        });
+      })
+      .catch((err) => console.error(err));
+  } catch (error) {
+    console.log(error)
+    return
+  }
+}
+
+// helper functions 
+async function updateAirtableLatLon({lat, lon, id}) {
+  try {
+    lat = parseFloat(lat)
+    lon = parseFloat(lon)
+
+      await base("CURRENT DATA").update([
+        {
+          id: id,
+          fields: {
+            lat: lat,
+            lon: lon,
+          },
+        },
+      ]); 
+  } catch (error) {
+    console.log(error)
+    return;
+  }
+}
+// up to 10 records
+// each need "fields" array and "id"
+// non destrucitve. only updates fields included; does not change fields not mentioned
