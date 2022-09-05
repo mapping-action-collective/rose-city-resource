@@ -3,8 +3,8 @@ module.exports = (app, pool) => {
     try {
 
       /* Pull the listing table and parse into JSON */
-      await pool.query("SELECT * FROM production_data", async (sqlerr, sqlres) => {
-        if (sqlerr) {
+      await pool.query("SELECT * FROM production_data", async (error, queryResponse) => {
+        if (error) {
           if (process.env.NODE_ENV == undefined || process.env.NODE_ENV !== "production") {
             try {
               await res.send(sqlerr);
@@ -17,7 +17,7 @@ module.exports = (app, pool) => {
         }
 
         /* Return JSON to the client */
-        await res.json(sqlres.rows);
+        await res.json(queryResponse.rows);
 
       });
     } catch (e) {

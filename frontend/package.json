@@ -2,7 +2,7 @@
   "name": "rcr-frontend",
   "version": "1.0.0",
   "private": true,
-  "proxy": "http://localhost:5000",
+  "proxy": "http://localhost:5001",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.35",
     "@fortawesome/free-solid-svg-icons": "^5.15.3",
@@ -45,7 +45,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "postinstall": "npm run build",
-    "dev": "PORT=3001 react-scripts start"
+    "dev": "react-scripts start"
   },
   "eslintConfig": {
     "extends": "react-app"

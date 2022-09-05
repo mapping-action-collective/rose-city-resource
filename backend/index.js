@@ -5,26 +5,13 @@ const cors = require("cors");
 const helmet = require("helmet");
 const compression = require("compression");
 const path = require("path");
-const { Pool } = require('pg');
 const app = express();
 app.disable('x-powered-by');
+const pool = require('./db/index')
 
 /* Determine whether the Node.js environment is development or production */
 const isProdEnvironment = process.env.NODE_ENV === "production";
 const isDevEnvironment = process.env.NODE_ENV === undefined || process.env.NODE_ENV !== "production";
-
-/* Heroku free postgres allows up to 20 concurrent connections */
-const pool = new Pool({
-  connectionString: keys.DATABASE_URL,
-  max: 20,
-  ssl: { rejectUnauthorized: false }
-});
-
-pool.on('error', async (error, client) => {
-  if (isDevEnvironment) {
-    console.error(`Database pool error: ${error}; Connection string: ${keys.DATABASE_URL}`);
-  }
-});
 
 /* Middleware */
 app.use(compression({ filter: shouldCompress }))
@@ -54,18 +41,6 @@ require("./routes/query-staging")(app, pool);
 require("./routes/meta-information")(app, pool);
 require("./routes/admin")(app, pool);
 
-/* Check for database connectivity and provide a human-friendly message on failure */
-const testDatabaseQuery = () => {
-  pool.query(`select last_update from production_meta`, (err, res) => {
-    if (err) {
-      console.error('Error connnecting to the database!');
-      if (keys.DATABASE_URL === undefined || keys.DATABASE_URL === null || keys.DATABASE_URL === '') {
-        console.error('Please check that the DATABASE_URL environment variable is correct. See comments in nodeKeys.js for further information.');
-      }
-    }
-  });
-}
-testDatabaseQuery();
 
 /* Default handler for requests not handled by one of the above routes */
 if (process.env.NODE_ENV === "production") {
@@ -86,5 +61,3 @@ if (process.env.NODE_ENV === "production") {
 
 const PORT = process.env.PORT;
 app.listen(PORT);
-
-app.get('/db', (req, res) => res.json({ url: process.env.DATABASE_URL}))

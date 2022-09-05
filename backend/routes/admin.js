@@ -10,7 +10,7 @@ var sanitizeHtml = require('sanitize-html');
 module.exports = (app, pool) => {
 
   /* Configure Passport, the login mechanism for the admin page */
-  const initializePassport = require("../initializePassport");
+  const initializePassport = require("../services/initializePassport");
   initializePassport(passport, pool);
   app.use(
     session({
@@ -30,7 +30,7 @@ module.exports = (app, pool) => {
 
   /* Configure view templates, which form the HTML part of the admin and login pages */
   app.set("view engine", "ejs");
-  app.set("views", path.join(__dirname, "../../admin/views"));
+  // app.set("views", path.join(__dirname, "../../admin/views"));
 
   /* Default handler for the admin page */
   app.get(["/admin", "/admin/dashboard"], userIsAuthenticated, async (req, res, next) => {

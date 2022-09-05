@@ -3,13 +3,13 @@ module.exports = (app, pool) => {
     try {
 
       /* Pull the listing table and parse into JSON */
-      await pool.query("SELECT * FROM etl_staging_1", async (sqlerr, sqlres) => {
-        if (sqlerr) {
+      await pool.query("SELECT * FROM etl_staging_1", async (error, queryResponse) => {
+        if (error) {
           if (process.env.NODE_ENV == undefined || process.env.NODE_ENV !== "production") {
             try {
-              await res.send(sqlerr);
-            } catch (e) {
-              console.error(e);
+              await res.send(error);
+            } catch (err) {
+              console.error(err);
               res.sendStatus(500);
             }
           }
@@ -17,11 +17,11 @@ module.exports = (app, pool) => {
         }
 
         /* Return JSON to the client */
-        await res.json(sqlres.rows);
+        await res.json(queryResponse.rows);
 
       });
-    } catch (e) {
-      return next(e);
+    } catch (err) {
+      return next(err);
     }
     
   });
