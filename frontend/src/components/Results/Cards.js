@@ -79,128 +79,130 @@ class Card extends React.PureComponent {
     };
 
     return (
-      <div className="card-map-container">
+      <div className='card-map-container'>
         <div
           ref={this.cardRef}
-          className="card-container"
+          className='card-container'
           style={record.id === selectedListing ? style : null}
         >
-          <div className="card-header">
-            <div className="card-category">{textMap.parsedCategory}</div>
-            {textMap.parsedCOVID === "CLOSED DUE TO COVID" ? (
-              <div className="covid-item">{textMap.parsedCOVID}</div>
+          <div className='card-header'>
+            <div className='card-category'>{textMap.parsedCategory}</div>
+            {textMap.parsedCOVID.toUpperCase() === "CLOSED DUE TO COVID" ? (
+              <div className='covid-item'>{textMap.parsedCOVID}</div>
             ) : null}
           </div>
-          <div className="card-header">
+          <div className='card-header'>
             <div
-              className="card-listing"
+              className='card-listing'
               style={
                 selectedListing === record.id
                   ? {
-                    color: "#27a727",
-                    fontWeight: "bolder",
-                  }
+                      color: "#27a727",
+                      fontWeight: "bolder",
+                    }
                   : null
               }
             >
               {textMap.parsedListing}
             </div>
-            <div className="spacer" />
+            <div className='spacer' />
             {record.lat !== "" || record.lon !== "" ? (
               <button
-                className="card-save-button"
-                data-tip="Show on map."
-                data-for="show-listing-tooltip"
+                className='card-save-button'
+                data-tip='Show on map.'
+                data-for='show-listing-tooltip'
                 onClick={() => {
                   handleCardClick(this.cardRef, record.id);
                   updateListing(record.id, "card");
                 }}
               >
                 <FontAwesomeIcon
-                  icon="map-marker"
-                  size="sm"
+                  icon='map-marker'
+                  size='sm'
                   style={
-                    selectedListing === record.id ? { color: "#27a727" } : null
+                    selectedListing === record.id ? {color: "#27a727"} : null
                   }
                 />
                 Show
                 <ReactTooltip
-                  id="show-listing-tooltip"
-                  place="top"
-                  type="dark"
-                  effect="solid"
+                  id='show-listing-tooltip'
+                  place='top'
+                  type='dark'
+                  effect='solid'
                 />
               </button>
             ) : null}
             {!showMapDetail ? (
-              <MediaQuery query="(min-width: 993px)">
+              <MediaQuery query='(min-width: 993px)'>
                 <button
-                  className="card-save-button"
-                  data-tip="Save listing, print later."
-                  data-for="save-tooltip"
+                  className='card-save-button'
+                  data-tip='Save listing, print later.'
+                  data-for='save-tooltip'
                   onClick={() => handleCardSave(record.id)}
                 >
                   <FontAwesomeIcon
-                    icon="save"
-                    size="sm"
+                    icon='save'
+                    size='sm'
                     style={
                       savedDataId.indexOf(record.id) > -1
-                        ? { color: "green" }
+                        ? {color: "green"}
                         : null
                     }
                   />
                   Save
                   <ReactTooltip
-                    id="save-tooltip"
-                    place="top"
-                    type="dark"
-                    effect="solid"
+                    id='save-tooltip'
+                    place='top'
+                    type='dark'
+                    effect='solid'
                   />
                 </button>
               </MediaQuery>
             ) : null}
           </div>
-          <div className="card-street">
-            {textMap.parsedStreet != null && textMap.parsedStreet !== '' ? (
+          <div className='card-street'>
+            {textMap.parsedStreet != null && textMap.parsedStreet !== "" ? (
               <div>
+                {/* <FontAwesomeIcon
+                  className='card-map-marker'
+                  icon='map-marker'
+                  size='sm'
+                /> */}
                 {textMap.parsedStreet} <br />
                 {textMap.parsedCity} <br />
                 {/* if the distance is not null then return it in the card */}
-                {record.distance !== null ? (
-                  <div className="card-distance">
-                    <FontAwesomeIcon
-                      className="card-map-marker"
-                      icon="map-marker"
-                      size="sm"
-                    />
-                    {`${Number(record.distance.toFixed(2))} miles`}
+                {/* {record.distance !== null ? (
+                  <div className='card-distance'>
+                    {`${Number(record.distance.toFixed(2))} miles away`}
                     <br />
                   </div>
-                ) : null}
+                ) : null} */}
                 <a
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target='_blank'
+                  rel='noopener noreferrer'
                   href={"//www.google.com/maps/dir/" + record.directionsUrl}
                 >
                   Get Directions
                 </a>
               </div>
             ) : (
-                <div className="card-undisclosed">Undisclosed Location</div>
-              )}
+              <div className='card-undisclosed'>Undisclosed Location</div>
+            )}
           </div>
-          <div className="covid-item covid-temp-listing">
-            {textMap.parsedCOVID === "TEMPORARY COVID RESPONSE SERVICE"
+          <div className='covid-item covid-temp-listing'>
+            {console.log(textMap, "textMap")}
+            {textMap.parsedCOVID.toUpperCase() ===
+            "TEMPORARY COVID RESPONSE SERVICE"
               ? textMap.parsedCOVID
               : null}
           </div>
-          <div className="card-phone-container">
+          <div className='card-phone-container'>
             {textMap.parsedPhone ? (
               <div>
-                <FontAwesomeIcon icon={"phone"} className="phone-icon" />
+                <FontAwesomeIcon icon={"phone"} className='phone-icon' />
                 {textMap.parsedPhone.map((phone, index) => {
                   return (
-                    <div key={`${phone.phone}-${index}`} className="card-phone">
+                    <div key={`${phone.phone}-${index}`} className='card-phone'>
                       <span>{`${phone.type}: `}</span>
                       {phone.phone}
                     </div>
@@ -209,13 +211,13 @@ class Card extends React.PureComponent {
               </div>
             ) : null}
           </div>
-          <div className="card-web-container">
+          <div className='card-web-container'>
             {textMap.parsedWeb ? (
               <div>
                 <FontAwesomeIcon icon={"globe"} />
                 <a
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target='_blank'
+                  rel='noopener noreferrer'
                   href={textMap.parsedWeb}
                 >
                   {" website"}
@@ -224,33 +226,34 @@ class Card extends React.PureComponent {
             ) : null}
           </div>
           {!(textMap.parsedDescription === "") ? (
-            <div className="card-item">
-              <div className="card-title">Service Description:</div>
-              <div className="card-content">{textMap.parsedDescription}</div>
+            <div className='card-item'>
+              <div className='card-title'>Service Description:</div>
+              <div className='card-content'>{textMap.parsedDescription}</div>
             </div>
           ) : null}
           {!(textMap.parsedHours === "") ? (
-            <div className="card-item">
-              <div className="card-title-flex">
+            <div className='card-item'>
+              <div className='card-title-flex'>
                 <div>Hours:</div>
-                <div className="covid-item">
-                  {textMap.parsedCOVID === "HOURS CHANGED DUE TO COVID"
+                <div className='covid-item'>
+                  {textMap.parsedCOVID.toUpperCase() ===
+                  "HOURS CHANGED DUE TO COVID"
                     ? textMap.parsedCOVID
                     : null}
                 </div>
               </div>
-              <div className="card-content">
-                {textMap.parsedCOVID === "CLOSED DUE TO COVID" ? (
-                  <div className="covid-item">CLOSED</div>
+              <div className='card-content'>
+                {textMap.parsedCOVID.toUpperCase() === "CLOSED DUE TO COVID" ? (
+                  <div className='covid-item'>CLOSED</div>
                 ) : (
-                    textMap.parsedHours
-                  )}
+                  textMap.parsedHours
+                )}
               </div>
             </div>
           ) : null}
         </div>
         {showMapDetail ? (
-          <div className="map-details-container">
+          <div className='map-details-container'>
             {record.lat !== "" ? (
               <DetailMap coords={[Number(record.lat), Number(record.lon)]} />
             ) : null}

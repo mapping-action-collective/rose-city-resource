@@ -165,6 +165,7 @@
 
 .card-distance {
   margin-top: 10px;
+  color: grey;
 }
 
 .card-map-marker {
@@ -237,7 +238,7 @@ on .card-phone-container*/
 }
 
 .covid-item {
-  color: red;
+  color: #1b4584;
   font-weight: 500;
 }
 
@@ -253,7 +254,7 @@ on .card-phone-container*/
 }
 
 .card-undisclosed {
-  color: #fc3c3c;
+  color: dimgrey;
 }
 
 /* popup */
