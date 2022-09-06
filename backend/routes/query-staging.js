@@ -3,7 +3,7 @@ module.exports = (app, pool) => {
     try {
 
       /* Pull the listing table and parse into JSON */
-      await pool.query("SELECT * FROM etl_staging_1", async (error, queryResponse) => {
+      await pool.query("SELECT * FROM test_preview_data", async (error, queryResponse) => {
         if (error) {
           if (process.env.NODE_ENV == undefined || process.env.NODE_ENV !== "production") {
             try {

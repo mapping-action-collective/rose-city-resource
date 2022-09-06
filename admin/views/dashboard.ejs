@@ -39,7 +39,12 @@
         }).join('')
     }
 
-    async function fetchEtlStatus() {
+    async function fetchEtlStatus() {   
+      const intervalId = window.setInterval(function () {
+        const isComplete = status.etl_ran_to_completion.toLowerCase() === 'true'
+
+      }, 5000);
+
       const status = await fetch('dashboard/etl-status')
         .catch(e => console.error(e));
       return await status === undefined ? '' : status.json().catch(e => console.error(e));
@@ -103,7 +108,8 @@
       /* Prompt for confirmation */
       let confirmation = confirm("Import data to preview site?");
       if (confirmation == false) { return; }
-      document.getElementById('status').innerText = 'Preparing to run import process...';
+      document.getElementById('status').innerText = `Your Airtable data is being uploaded to the preview site. \n This will take 2-5 minutes. \n More instructions will appear here when the preview site is ready!`;
+      // document.getElementById('status').innerText =  `Your Airtable data is being uploaded to the preview site. \n Please wait 5 minutes and then go to https://rosecityresource.streetroots.org/preview/#/ to see your preview data. \n No further instructions will appear here.`
 
       /* Safety check to abort if ETL is in progress */
       const logs = await fetchEtlLogs();
@@ -137,8 +143,12 @@
         }
         if (jobEnd && jobEnd.length >= 1) {
           // preview URL
-          const previewPage = [window.location.protocol, '//', window.location.host.replace(/\d+/, '3000'), '?datatable=staging'].join('');
-          document.getElementById('status').innerHTML = '<span>&#10004;&nbsp;Successfully imported to the Preview Site!</span><br/>';
+          const previewPage = [window.location.protocol, '//', window.location.host.replace(/\d+/, '3000'), '/preview/#/'].join('');
+          // document.getElementById('status').innerHTML = '<span>&#10004;&nbsp;Successfully imported to the Preview Site!</span><br/>';
+          // Fake status display (TEMP)
+          window.setTimeout(() => {
+            document.getElementById('status').innerHTML = "<span>&#10004;&nbsp;Successfully imported to the Live Site!</span>";
+          }, 20000)
           $('#preview-button').removeClass('disabled')
           clearInterval(stagingInterval);
         }
@@ -160,7 +170,7 @@
       /* Query the server for status on an interval */
       const prodInterval = window.setInterval(async function () {
 
-        /* Check if the production table has been updated */
+      //   /* Check if the production table has been updated */
         let timestamp = await fetchLastUpdate();
         let friendlyTimestamp = new Date(timestamp).toLocaleString();
         document.getElementById('-time').innerText = friendlyTimestamp;
@@ -362,32 +372,17 @@
       <div class="instruction-div" id="step-1">
         <div class="inner-content" style="display: flex; flex-direction: column; align-items: center;">
 
-          <h2>Step 1: Import Data (5 minutes)
+          <h2>Step 1: Import Data (3-5 minutes)
           </h2>
 
           <div class="ui message">
             <ol class="ui list">
-              <span onClick="toggleImportInstructions()">
-              <li>Click "Import Data to Preview Site" 
-                <i class="icon angle down"></i>
-              </span>
 
-                <ul id="import-instructions">
-                  <li value="+">
-                    This will import your data from Airtable to a Rose City Resource test/preview site.
-                  </li>
-                  <li value="+">
-                    The process takes about 5 minutes
-                  </li>
-                  <li value="+">
-                    You can see the progress under "Logs"
-                  </li>
-                </ul>
-              </li>
+                <p>Click the button to import your data from Airtable to the <strong>preview</strong> site</p>
+                <p><strong>Note: this will NOT update the live site.</strong></p>
+                <p>It will show you a preview, only.</p>
                 
-              <li class="strong">If you get an error message, copy the message and email it to your support contact</li>
-              <li>When the import is complete, a message will appear with next steps
-              </li>
+
             </ol>
           </div>
           <!-- IMPORT BUTTON  -->
@@ -406,6 +401,7 @@
           </div>
           <!-- etl status  -->
           <div id='etl-status'>&nbsp;
+
           </div>
 
           <br />
@@ -418,7 +414,7 @@
               </table>
             </details>
             <br>
-            <details open>
+            <details>
               <summary>Logs</summary>
               <table cellpadding='0' cellspacing='0' 
                 class="ui celled table">
@@ -584,8 +580,8 @@
   /* logic for "View Preview Site" buttom" */
   function openPreviewSite() {
     const finalButton = document.getElementById('import-live');
-    finalButton.removeClass('disabled')
-    const previewPage = [window.location.protocol, '//', window.location.host.replace(/\d+/, '3000'), '?datatable=staging'].join('');
+    finalButton.classList.remove('disabled')
+    const previewPage = [window.location.protocol, '//', window.location.host.replace(/\d+/, '3000'), '/preview/#/'].join('');
     window.open(previewPage, "_blank");
    }
 

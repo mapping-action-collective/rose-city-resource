@@ -65,10 +65,8 @@ export async function addUserDistancesToRecords(records) {
 
 /* Download records by fetching JSON from the appropriate API route */
 export async function getRecords() {
-  const uri =
-    getQueryStringParameterValue("datatable") === "staging"
-      ? CONFIG.QUERY_STAGING
-      : CONFIG.QUERY;
+  const isPreviewMode = window.location.pathname?.includes("preview");
+  const uri = isPreviewMode ? CONFIG.QUERY_STAGING : CONFIG.QUERY;
 
   try {
     const queryResponse = await fetch(uri);

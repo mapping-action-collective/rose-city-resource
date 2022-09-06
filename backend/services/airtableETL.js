@@ -1,5 +1,8 @@
 const Airtable = require("airtable");
 require("dotenv").config();
+const db = require('../db')
+const pool = require("../db").pool;
+
 // Airtable API documentation: https://airtable.com/app1aef4m31bbo69J/api/docs#javascript/authentication
 
 const base = new Airtable({apiKey: process.env.AIRTABLE_API_KEY}).base(process.env.AIRTABLE_BASE_ID);
@@ -8,6 +11,10 @@ const base = new Airtable({apiKey: process.env.AIRTABLE_API_KEY}).base(process.e
 // TODO: Add an element to the UI so the user can trigger this script
 async function runAirtableEtl() {
   try {
+    console.log("runnning airtable etl");
+    // Clear old preview data if present
+    await dropAndRecreatePreviewTable();
+    console.log('preview table recreated')
     base("CURRENT DATA")
       .select({view: "Clean Data"})
       .all()
@@ -15,25 +22,56 @@ async function runAirtableEtl() {
         // Write results to Postgres
         (async () => {
           const client = await pool.connect();
+          console.log("connected to pool");
+
           try {
             results.forEach((result) => {
               let listing = formatListing(result);
-              if (listing.id > 112) {
-                (async () => {
-                  await writeListingToPreview(listing, client);
-                })();
-              }
+              (async () => {
+                await writeListingToPreview(listing, client);
+              })();
             });
+            return true;
           } catch (error) {
             console.log("error in airtable ETL catch", error.message);
             return;
           }
         })();
+        (async ()=>{
+          await updateDateUpdated();
+        })(); 
+        return true;
       })
       .catch((err) => console.error(err));
   } catch (error) {
     console.log(error);
     return;
+  }
+}
+
+// CREATE TABLE IF NOT EXISTS test_production_meta (
+//   last_update timestamp with time zone,
+//   site_banner_enabled boolean,
+//   site_banner_content text
+// )
+
+
+async function updateDateUpdated() {
+  try {
+    await db.query(SET_LAST_UPDATED);
+  } catch (error) {
+    console.log(error)
+    return false;
+  }
+}
+
+async function getDateUpdated() {
+  try {
+    const res = await db.query(GET_LAST_UPDATED);
+    return res?.rows?.[0]
+  } catch (error) {
+        console.log(error);
+        return false;
   }
 }
 
@@ -71,25 +109,6 @@ const formatId = (record) => {
   record.id = record.asset_id;
   return record;
 };
-
-const DATABASE_FIELDS = [
-  "general_category",
-  "main_category",
-  "parent_organization",
-  "listing",
-  "service_description",
-  "covid_message",
-  "street",
-  "street2",
-  "city",
-  "postal_code",
-  "website",
-  "hours",
-  "lat",
-  "lon",
-  "phone",
-  "asset_id",
-];
 
 const FIELDS = [
   "general_category",
@@ -136,10 +155,14 @@ const formatListing = (result) => {
 
 // SQL helper strings ----------------------------------------
 
-const DROP_PREVIEW_TABLE = `DROP TABLE IF EXISTS preview_data`;
+// CHANGE TABLE NAMES HERE IF NEEDED
+const SET_LAST_UPDATED = `INSERT INTO production_meta (last_update) VALUES (now());`
+const GET_LAST_UPDATED = `SELECT last_update FROM production_meta;`;
+
+const DROP_PREVIEW_TABLE = `DROP TABLE IF EXISTS test_preview_data`;
 
 const CREATE_PREVIEW_TABLE = `
-  CREATE TABLE IF NOT EXISTS rcr_preview_data (
+  CREATE TABLE IF NOT EXISTS test_preview_data (
     general_category TEXT,
     main_category TEXT,  
     parent_organization TEXT,
@@ -159,12 +182,15 @@ const CREATE_PREVIEW_TABLE = `
     id INT PRIMARY KEY NOT NULL
   );
 `;
+
+const DROP_PRODUCTION_TABLE = `DROP TABLE IF EXISTS test_production_data`;
+
 const CREATE_PRODUCTION_TABLE = `
-  CREATE TABLE production_data AS SELECT * FROM preview_data;
+  CREATE TABLE test_production_data AS SELECT * FROM test_preview_data;
 `;
 
 const INSERT_INTO_PREVIEW_TABLE = `
-  INSERT INTO rcr_preview_data (
+  INSERT INTO test_preview_data (
     general_category, main_category, parent_organization, listing, 
     service_description, covid_message, street, street2, city, 
     postal_code, website, hours, phone, id, lat, lon, county) 
@@ -213,7 +239,7 @@ const writeListingToPreview = async (record, client) => {
       county,
     ]);
     if (response) {
-      console.log(response.rows[0]);
+      // console.log(response.rows[0]);
     }
   } catch (error) {
     console.error(error.message);
@@ -223,9 +249,12 @@ const writeListingToPreview = async (record, client) => {
 
 const promotePreviewToProd = async () => {
   try {
-    await pool.query("DROP TABLE IF EXISTS production_data");
-    const success = await pool.query(CREATE_PRODUCTION_TABLE);
-    console.log(success.rows);
+    await db.query(DROP_PRODUCTION_TABLE);
+    const success = await db.query(CREATE_PRODUCTION_TABLE);
+    // console.log(success.rows);
+    if (success?.rows && success?.rows?.length > 0) {
+      return true;
+    }
   } catch (error) {
     console.error(error.message);
     return;
@@ -234,10 +263,16 @@ const promotePreviewToProd = async () => {
 
 const dropAndRecreatePreviewTable = async () => {
   try {
-    await pool.query(DROP_PREVIEW_TABLE);
-    await pool.query(CREATE_PREVIEW_TABLE);
+    await db.query(DROP_PREVIEW_TABLE);
+    await db.query(CREATE_PREVIEW_TABLE);
   } catch (error) {
     console.error(error.message);
     return;
   }
+};
+
+module.exports = {
+  runAirtableEtl,
+  promotePreviewToProd,
+  getDateUpdated,
 };

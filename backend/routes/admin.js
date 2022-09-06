@@ -6,6 +6,11 @@ const session = require("express-session");
 const path = require('path');
 const bcrypt = require('bcrypt');
 var sanitizeHtml = require('sanitize-html');
+const {
+  runAirtableEtl,
+  promotePreviewToProd,
+  getDateUpdated,
+} = require("../services/airtableETL");
 
 module.exports = (app, pool) => {
 
@@ -37,40 +42,19 @@ module.exports = (app, pool) => {
     try {
 
       const { action } = req.query;
-
       if (action === 'runetl') {
-        /* The 'Import to Staging' button was clicked */
-
-        /* Prepare to run the ETL script */
-        await clearTables().catch(e => console.error('Error clearing tables from Node.js', e.stack));
-        log('Job Start');
-
         /* Run the ETL script */
-        const file = path.resolve('../etl/main.py');
-        const python = spawn('python3', [file, keys.DATABASE_URL]);
-        python.on('spawn', (code) => {
-          console.info('Python spawn: ' + code)
-        })
-        python.on('error', (err) => {
-          console.error('Python error: ' + err)
-        })
-        python.on('exit', (code) => {
-          console.info('Python exit code: ' + code)
-        })
-        python.stderr.on('data', (data) => {
-          log('Python stderr: ' + data.toString());
-        })
-        python.stdout.on('data', (data) => {
-          log('Python stdout: ' + data.toString());
-        })
-        res.setHeader('Cache-Control', 'no-cache');
-        res.send('true');
-        return;
+        const etlSuccess = await runAirtableEtl();
+        if (etlSuccess) {
+          res.setHeader("Cache-Control", "no-cache");
+          res.send('true');
+          return;
+        }
       }
       else if (action === 'runprod') {
 
         /* The 'Import to Production' button was clicked */
-        await importToProduction();
+        await promotePreviewToProd();
         res.setHeader('Cache-Control', 'no-cache');
         res.send('true');
         return;
@@ -113,16 +97,19 @@ module.exports = (app, pool) => {
 
       let log = null;
 
-      await pool.query('SELECT * FROM get_etl_status();', async (err, result) => {
-        if (err) {
-          console.error('Error executing query ', err.stack);
-          res.sendStatus(500);
-          return;
+      await pool.query(
+        "SELECT * FROM test_production_meta;",
+        async (err, result) => {
+          if (err) {
+            console.error("Error executing query ", err.stack);
+            res.sendStatus(500);
+            return;
+          }
+          log = result.rows;
+          res.setHeader("Cache-Control", "no-cache");
+          res.json(log);
         }
-        log = result.rows;
-        res.setHeader('Cache-Control', 'no-cache');
-        res.json(log);
-      });
+      );
 
     } catch (e) {
       return next(e);
