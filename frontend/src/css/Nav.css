@@ -38,13 +38,13 @@
 }
 
 .nav-item:hover {
-  color: #f8b500;
+  color: #BFDBF7;
 }
 
 .nav-item-active {
-  background: #85898e;
-  color: #f8b500;
-  border-top: 2px solid #f8b500;
+  background: #087e8b;
+  color: white;
+  border-top: 2px solid white;
 }
 
 .hamburger-icon {
@@ -62,13 +62,13 @@
 }
 
 .nav-drawer-item:hover {
-  color: #f8b500;
+  color: #BFDBF7;
 }
 
 .nav-drawer-item-active {
-  background: #85898e;
-  color: #f8b500;
-  border-top: 2px solid #f8b500;
+  background: #087e8b;
+  color: white;
+  border-top: 2px solid white;
 }
 
 .navdrawer {

@@ -14,22 +14,15 @@ red/orange: #FC3C3C
 
 /* 2022 REDESIGN COLOR SCHEME */
 /* 
+DARK BLUE BACKGROUND:
+  #142A35
+TEAL: 
+  #087e8b
+LIGHTER DARK BLUE BACKGROUND:
+  #1C3A4A
+*/ 
 
-#app > .footer#streetroots {
-  background-color: #142A35;
-}
-
-#app > .footer#streetroots > a.item.active {
-  background-color: #087e8b!important;
-}
-
-#app > header#streetroots {
-  background-color: #142A35;
-  background-color: #1C3A4A;
-}
-*/
-
-/* THESE STYLES DEFAULT FOR MOBILE  */
+/* ADDITIONAL DESKTOP STYLES ARE AT THE END OF THE FILE  */
 .home-outer-container {
   margin-bottom: 35px;
 }
@@ -197,7 +190,7 @@ red/orange: #FC3C3C
   background: #142A35;
   background-color: #1C3A4A;
   padding: 0.5rem 0.75rem 0.5rem 0.75rem;
-  border-top: 1px solid #fff4e0;
+  border-top: 1px solid #e0e6ff;
   cursor: pointer;
   min-height: 35px;
 }
