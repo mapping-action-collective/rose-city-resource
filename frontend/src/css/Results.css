@@ -44,7 +44,7 @@
   flex-wrap: wrap;
   margin: 5px 5px 5px 5px;
   width: auto;
-  background-color: #393e46;
+  background-color: #142A35;
   border-radius: 2px;
   border: 1px solid gray;
   background-color: #ecedee;
@@ -349,7 +349,7 @@ on .card-phone-container*/
 }
 
 .card-save-button:hover:enabled {
-  background: linear-gradient(#2e3238 #393e46);
+  background: linear-gradient(#142A35 #142A35);
   text-decoration: none;
 }
 
@@ -420,7 +420,7 @@ on .card-phone-container*/
   .print-button:enabled,
   .print-details-button:enabled,
   .popup-show-details:enabled {
-    background: linear-gradient(#2e3238 #393e46);
+    background: linear-gradient(#142A35 #142A35);
     text-decoration: none;
   }
 

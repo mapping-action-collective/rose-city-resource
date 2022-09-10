@@ -2,9 +2,9 @@
 
 /* 
 --Copywriting-Produkt-01--
-gray: #393E46 
+gray: #142A35 
 gray2: #85898e
-gray3: #2E3238  ?????
+gray3: #142A35  ?????
 gray4: #d1d2d4
 blue: #00ADB5
 white/beige: #FFF4E0
@@ -12,6 +12,24 @@ yellow: #F8B500
 red/orange: #FC3C3C
 */
 
+/* 2022 REDESIGN COLOR SCHEME */
+/* 
+
+#app > .footer#streetroots {
+  background-color: #142A35;
+}
+
+#app > .footer#streetroots > a.item.active {
+  background-color: #087e8b!important;
+}
+
+#app > header#streetroots {
+  background-color: #142A35;
+  background-color: #1C3A4A;
+}
+*/
+
+/* THESE STYLES DEFAULT FOR MOBILE  */
 .home-outer-container {
   margin-bottom: 35px;
 }
@@ -32,14 +50,21 @@ red/orange: #FC3C3C
   flex-direction: column;
   align-items: center;
   width: 100%;
-  background: #2e3238;
+  background: #142A35;
+  /* 2022 REDESIGN */
+  background-color: #142A35;
 }
 
 /* ---------------------------------- */
 /* Basic Instructions */
 
+/* Find reduce cost or free... */
 .basic-instructions {
-  color: #f8b500;
+  /* color: #f8b500;
+  color: #D8E4FF;
+  color: #F8F4E3;
+  color: #DEECF8; */
+  color: #FFF;
   font-size: 1.75rem;
   padding-top: 1rem;
   max-width: 675px;
@@ -68,21 +93,24 @@ red/orange: #FC3C3C
 .search-input {
   padding: 10px;
   font-size: 17px;
-  border: 1px solid #393e46;
+  border: 1px solid #142A35;
   border-radius: 5px 0 0 5px;
   float: left;
   width: 80%;
   background: #f1f1f1;
 }
 
+/* SEARCH BUTTON  */
 .search-button {
   float: left;
   width: 20%;
   padding: 10px;
-  background: #00adb5;
+  /* background: #00adb5; */
+  /* background-color: #087e8b; */
+  background-color: #06ABB5;
   color: white;
   font-size: 17px;
-  border: 1px solid #393e46;
+  border: 1px solid #142A35;
   border-left: none;
   border-radius: 0 5px 5px 0;
   cursor: pointer;
@@ -118,12 +146,14 @@ red/orange: #FC3C3C
   width: 100%;
 }
 
+/* MOBILE CATEGORY DROPDOWN  */
 .browse-categories {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0.5rem;
-  background: #393e46;
+  background: #142A35;
+  /* background-color: #1C3A4A; */
   color: white;
   cursor: pointer;
   min-height: 40px;
@@ -135,7 +165,7 @@ red/orange: #FC3C3C
   justify-content: center;
   align-items: center;
   padding: 0.5rem;
-  background: #393e46;
+  background: #142A35;
   color: white;
   min-height: 40px;
   border-top: 1px solid #fff4e0;
@@ -164,7 +194,8 @@ red/orange: #FC3C3C
 .icon-container {
   display: flex;
   flex-direction: row;
-  background: #2e3238;
+  background: #142A35;
+  background-color: #1C3A4A;
   padding: 0.5rem 0.75rem 0.5rem 0.75rem;
   border-top: 1px solid #fff4e0;
   cursor: pointer;
@@ -173,6 +204,7 @@ red/orange: #FC3C3C
 
 .icon-container:hover {
   background: #85898e;
+  background-color: #087e8b;
 }
 
 .selected-item {
@@ -182,7 +214,7 @@ red/orange: #FC3C3C
   padding: 0.5rem;
   padding: 0.5rem 0.75rem 0.5rem 0.75rem;
   border-top: 1px solid #fff4e0;
-  background: #393e46;
+  background: #142A35;
   color: white;
   cursor: pointer;
 }
@@ -286,13 +318,13 @@ red/orange: #FC3C3C
 }
 
 .search-nav-container-1 {
-  color: #393e46;
+  color: #142A35;
   align-items: center;
   justify-content: center;
 }
 
 .modal-heading-title {
-  color: #393e46;
+  color: #142A35;
   font-size: 1.75rem;
   font-weight: 500;
 }
@@ -339,7 +371,7 @@ red/orange: #FC3C3C
 .modal-search-item-title {
   font-size: 1.1rem;
   font-weight: 500;
-  color: #393e46;
+  color: #142A35;
   margin-bottom: 10px;
 }
 
@@ -372,7 +404,7 @@ red/orange: #FC3C3C
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  color: #393e46;
+  color: #142A35;
 }
 
 /* Hide the browser's default checkbox */
@@ -450,6 +482,9 @@ input[type='checkbox'] {
     margin-left: auto;
     margin-right: auto;
   }
+  .basic-search-container {
+    background-color: #1C3A4A;
+  }
 
   .rcr-online {
     display: block;
@@ -515,7 +550,8 @@ input[type='checkbox'] {
   .categories-container {
     width: 100%;
     min-width: 845px;
-    background: #2e3238;
+    background: #1C3A4A;
+    background-color: #142A35;
   }
 
   .icons-container {
@@ -528,7 +564,8 @@ input[type='checkbox'] {
   .icon-container {
     display: flex;
     flex-direction: column;
-    background: #2e3238;
+    background: #142A35;
+    /* background-color: #1C3A4A; */
     padding: 0.5rem;
     text-align: center;
     align-content: space-evenly;
@@ -559,12 +596,14 @@ input[type='checkbox'] {
     text-align: left;
     border-top: 1px solid white;
     padding: 0.5rem;
-    background: #393e46;
+    background: #142A35;
+    background-color: #1C3A4A;
     cursor: pointer;
   }
 
   .icon-dropdown-container:hover {
     background: #85898e;
+    background-color: #087e8b;
   }
 
   .icon-dropdown-name {

@@ -7,7 +7,7 @@ const styles = {
     texAlign: 'center',
     fontSize: '20px',
     marginLeft: '10px',
-    color: '#2E3238'
+    color: '#142A35'
   }
 };
 
@@ -51,7 +51,7 @@ class Loading extends React.PureComponent {
     return (
       <div className="loading-container">
         <FontAwesomeIcon
-          style={{ color: '#2E3238' }}
+          style={{ color: '#142A35' }}
           icon="spinner"
           size="lg"
           pulse

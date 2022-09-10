@@ -291,7 +291,8 @@ export default class SearchBar extends React.PureComponent {
             <FontAwesomeIcon icon="search" />
           </LinkButton>
         </form>
-        <div className="advanced-search" onClick={this.toggleAdvSearchModal}>
+        {/* NOTE 9/9/22: Advanced Search is broken. Commenting out until it can be fixed. */}
+        {/* <div className="advanced-search" onClick={this.toggleAdvSearchModal}>
           Advanced Search
         </div>
         {showAdvSearchModal ? (
@@ -300,7 +301,7 @@ export default class SearchBar extends React.PureComponent {
             searchData={searchData}
             match={match} // this was passed down via React router
           />
-        ) : null}
+        ) : null} */}
       </div>
     );
   }
