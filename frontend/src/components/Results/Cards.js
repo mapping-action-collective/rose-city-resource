@@ -11,6 +11,8 @@ import {
   cardSortByDistance,
   cardWebAddressFixer,
 } from "../../utils/api";
+import { formatDescription } from '../../utils/cardUtils'
+
 import { greenLMarker } from "../../icons/mapIcons";
 
 const DetailMap = (props) => {
@@ -65,15 +67,15 @@ class Card extends React.PureComponent {
     } = this.props;
 
     const textMap = {
-      parsedCategory: record.main_category,
-      parsedListing: record.listing,
+      category: record.main_category,
+      listingTitle: record.listing,
       parsedPhone: cardPhoneTextFilter(record),
       parsedWeb: cardWebAddressFixer(record.website),
       parsedStreet: record.street !== null && record.street !== '' ? `${cardTextFilter(record.street)} ${cardTextFilter(
         record.street2
       )}`.trim() : '',
       parsedCity: `${record.city}, OR ${record.postal_code}`,
-      parsedDescription: cardTextFilter(record.service_description),
+      parsedDescription: cardTextFilter(formatDescription(record.service_description)),
       parsedHours: cardTextFilter(record.hours),
       parsedCOVID: cardTextFilter(record.covid_message),
     };
@@ -86,7 +88,7 @@ class Card extends React.PureComponent {
           style={record.id === selectedListing ? style : null}
         >
           <div className='card-header'>
-            <div className='card-category'>{textMap.parsedCategory}</div>
+            <div className='card-category'>{textMap.category}</div>
             {textMap.parsedCOVID.toUpperCase() === "CLOSED DUE TO COVID" ? (
               <div className='covid-item'>{textMap.parsedCOVID}</div>
             ) : null}
@@ -97,13 +99,13 @@ class Card extends React.PureComponent {
               style={
                 selectedListing === record.id
                   ? {
-                      color: "#27a727",
+                      color: "#087e8b",
                       fontWeight: "bolder",
                     }
                   : null
               }
             >
-              {textMap.parsedListing}
+              {textMap.listingTitle}
             </div>
             <div className='spacer' />
             {record.lat !== "" || record.lon !== "" ? (
@@ -145,7 +147,7 @@ class Card extends React.PureComponent {
                     size='sm'
                     style={
                       savedDataId.indexOf(record.id) > -1
-                        ? {color: "green"}
+                        ? {color: "#087e8b"}
                         : null
                     }
                   />

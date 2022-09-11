@@ -6,5 +6,5 @@ const trueLineBreak = `\n\n`
 export const formatDescription = (str) => {
   let paragraphs = str.split(trueLineBreak);
   paragraphs = paragraphs.map(paragraph => paragraph.split('\n').join(''));
-  return paragraphs.join(`\n`)
+  return paragraphs.join(`\n\n`)
 }

@@ -1,3 +1,13 @@
+/* 2022 REDESIGN 
+
+DARK BLUE BACKGROUND:
+  #142A35
+TEAL: 
+  #087e8b
+LIGHTER DARK BLUE BACKGROUND:
+  #1C3A4A
+*/
+
 .leaflet-container {
   height: 100%;
   margin: 0.25rem;
@@ -73,7 +83,7 @@
 }
 
 .counts:nth-child(3n) {
-  color: #1c794b;
+  color: #087e8b;
 }
 
 .print-button-container {
@@ -251,6 +261,7 @@ on .card-phone-container*/
   padding: 5px;
   line-height: 1.4;
   background: #ecedee;
+  white-space: pre-wrap;
 }
 
 .card-undisclosed {
