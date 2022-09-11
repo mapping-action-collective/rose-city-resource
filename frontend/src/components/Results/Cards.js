@@ -15,6 +15,19 @@ import { formatDescription } from '../../utils/cardUtils'
 
 import { greenLMarker } from "../../icons/mapIcons";
 
+/* 2022 REDESIGN 
+
+DARK BLUE BACKGROUND:
+  #142A35
+TEAL: 
+  #087e8b
+LIGHTER DARK BLUE BACKGROUND:
+  #1C3A4A
+*/
+
+//2022 color scheme
+const primaryTeal = '#087e8b';
+
 const DetailMap = (props) => {
   return (
     <React.Fragment>
@@ -36,12 +49,11 @@ const DetailMap = (props) => {
   );
 };
 
-//style for background
-//card style when a location is
-//selected by user
-const style = {
-  boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.5)",
-};
+//style for background card style 
+//when a location is selected by user
+const selectedCardStyle = { boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.5)" }
+const selectedListingTitle = { color: "#087e8b", fontWeight: "bolder" }
+
 
 class Card extends React.PureComponent {
   state = {
@@ -66,143 +78,164 @@ class Card extends React.PureComponent {
       showMapDetail,
     } = this.props;
 
-    const textMap = {
+    const listing = {
       category: record.main_category,
       listingTitle: record.listing,
       parsedPhone: cardPhoneTextFilter(record),
-      parsedWeb: cardWebAddressFixer(record.website),
-      parsedStreet: record.street !== null && record.street !== '' ? `${cardTextFilter(record.street)} ${cardTextFilter(
+      website: cardWebAddressFixer(record.website),
+      streetAddress: record.street !== null && record.street !== '' ? `${cardTextFilter(record.street)} ${cardTextFilter(
         record.street2
       )}`.trim() : '',
-      parsedCity: `${record.city}, OR ${record.postal_code}`,
-      parsedDescription: cardTextFilter(formatDescription(record.service_description)),
-      parsedHours: cardTextFilter(record.hours),
-      parsedCOVID: cardTextFilter(record.covid_message),
+      city: `${record.city}, OR ${record.postal_code}`,
+      description: cardTextFilter(formatDescription(record.service_description)),
+      hours: cardTextFilter(record.hours),
+      covidMessage: cardTextFilter(record.covid_message),
     };
+
+    const ShowOnMapButton = () => (
+      <button
+        className='card-save-button'
+        data-tip='Show on map.'
+        data-for='show-listing-tooltip'
+        onClick={() => {
+          handleCardClick(this.cardRef, record.id);
+          updateListing(record.id, "card");
+        }}
+      >
+      <FontAwesomeIcon
+        icon='map-marker'
+        size='sm'
+        style={
+          selectedListing === record.id ? {color: primaryTeal} : {color: 'grey'}
+        }
+      />
+      Show
+      <ReactTooltip
+        id='show-listing-tooltip'
+        place='top'
+        type='dark'
+        effect='solid'
+      />
+    </button>
+    )
+
+    const SaveButton = () => (
+      <button
+        className='card-save-button'
+        data-tip='Save listing, print later.'
+        data-for='save-tooltip'
+        onClick={() => handleCardSave(record.id)}
+      >
+        <FontAwesomeIcon
+          icon='save'
+          size='sm'
+          style={
+            savedDataId.indexOf(record.id) > -1
+              ? {color: primaryTeal}
+              : null
+          }
+        />
+        Save
+        <ReactTooltip
+          id='save-tooltip'
+          place='top'
+          type='dark'
+          effect='solid'
+        />
+      </button>
+    )
+
+    const SUISaveButton = () => {
+      const isSaved = savedDataId.indexOf(record.id) > -1;
+      return (
+        <button
+          className='ui button basic mini fluid'
+          data-tip='Save listing, print later.'
+          data-for='save-tooltip'
+          onClick={() => handleCardSave(record.id)}
+        >
+          <i style={{color: primaryTeal}}
+            className={isSaved ? "ui icon bookmark" : "ui icon bookmark outline"}
+          />
+          {isSaved ? 'Unsave' : 'Save'}
+          <ReactTooltip
+            id='save-tooltip'
+            place='top'
+            type='dark'
+            effect='solid'
+          />
+        </button>
+      );
+    }
+
+
+
+    const ShowDistance = () => (
+      <div className='card-distance'>
+        {`${Number(record.distance.toFixed(1))} mi`}
+      </div>
+    )
+
+    // We don't want to display cards without titles 
+    if (!listing.listingTitle) return null;
 
     return (
       <div className='card-map-container'>
         <div
           ref={this.cardRef}
           className='card-container'
-          style={record.id === selectedListing ? style : null}
+          style={record.id === selectedListing ? selectedCardStyle : null}
         >
           <div className='card-header'>
-            <div className='card-category'>{textMap.category}</div>
-            {textMap.parsedCOVID.toUpperCase() === "CLOSED DUE TO COVID" ? (
-              <div className='covid-item'>{textMap.parsedCOVID}</div>
-            ) : null}
+            <div className='card-category'>{listing.category}</div>
           </div>
           <div className='card-header'>
             <div
               className='card-listing'
               style={
-                selectedListing === record.id
-                  ? {
-                      color: "#087e8b",
-                      fontWeight: "bolder",
-                    }
-                  : null
+                selectedListing === record.id ? selectedListingTitle : null
               }
             >
-              {textMap.listingTitle}
+              {listing.listingTitle}
             </div>
+
             <div className='spacer' />
-            {record.lat !== "" || record.lon !== "" ? (
-              <button
-                className='card-save-button'
-                data-tip='Show on map.'
-                data-for='show-listing-tooltip'
-                onClick={() => {
-                  handleCardClick(this.cardRef, record.id);
-                  updateListing(record.id, "card");
-                }}
-              >
-                <FontAwesomeIcon
-                  icon='map-marker'
-                  size='sm'
-                  style={
-                    selectedListing === record.id ? {color: "#27a727"} : null
-                  }
-                />
-                Show
-                <ReactTooltip
-                  id='show-listing-tooltip'
-                  place='top'
-                  type='dark'
-                  effect='solid'
-                />
-              </button>
-            ) : null}
-            {!showMapDetail ? (
-              <MediaQuery query='(min-width: 993px)'>
-                <button
-                  className='card-save-button'
-                  data-tip='Save listing, print later.'
-                  data-for='save-tooltip'
-                  onClick={() => handleCardSave(record.id)}
-                >
-                  <FontAwesomeIcon
-                    icon='save'
-                    size='sm'
-                    style={
-                      savedDataId.indexOf(record.id) > -1
-                        ? {color: "#087e8b"}
-                        : null
-                    }
-                  />
-                  Save
-                  <ReactTooltip
-                    id='save-tooltip'
-                    place='top'
-                    type='dark'
-                    effect='solid'
-                  />
-                </button>
-              </MediaQuery>
-            ) : null}
           </div>
-          <div className='card-street'>
-            {textMap.parsedStreet != null && textMap.parsedStreet !== "" ? (
-              <div>
-                {/* <FontAwesomeIcon
+          {listing.streetAddress != null && listing.streetAddress !== "" && (
+            <div className='card-second-row'>
+              <div className='card-street'>
+                <div>
+                  {/* <FontAwesomeIcon
                   className='card-map-marker'
                   icon='map-marker'
                   size='sm'
                 /> */}
-                {textMap.parsedStreet} <br />
-                {textMap.parsedCity} <br />
-                {/* if the distance is not null then return it in the card */}
-                {/* {record.distance !== null ? (
-                  <div className='card-distance'>
-                    {`${Number(record.distance.toFixed(2))} miles away`}
-                    <br />
-                  </div>
-                ) : null} */}
-                <a
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  href={"//www.google.com/maps/dir/" + record.directionsUrl}
-                >
-                  Get Directions
-                </a>
+                  {listing.streetAddress} <br />
+                  {listing.city} <br />
+                  <a
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    href={"//www.google.com/maps/dir/" + record.directionsUrl}
+                  >
+                    Get Directions
+                  </a>
+                </div>
               </div>
-            ) : (
-              <div className='card-undisclosed'>Undisclosed Location</div>
-            )}
-          </div>
-          <div className='covid-item covid-temp-listing'>
-            {console.log(textMap, "textMap")}
-            {textMap.parsedCOVID.toUpperCase() ===
-            "TEMPORARY COVID RESPONSE SERVICE"
-              ? textMap.parsedCOVID
-              : null}
-          </div>
+              <div className='card-distance-and-miles'>
+                <div style={{width: "100%"}}>
+                  {(record.lat !== "" || record.lon !== "") && (
+                    <ShowOnMapButton />
+                  )}
+                  {record.distance !== null && <ShowDistance />}
+                </div>
+              </div>
+            </div>
+          )}
           <div className='card-phone-container'>
-            {textMap.parsedPhone ? (
+            {listing.parsedPhone ? (
               <div>
                 <FontAwesomeIcon icon={"phone"} className='phone-icon' />
-                {textMap.parsedPhone.map((phone, index) => {
+                {listing.parsedPhone.map((phone, index) => {
                   return (
                     <div key={`${phone.phone}-${index}`} className='card-phone'>
                       <span>{`${phone.type}: `}</span>
@@ -214,46 +247,50 @@ class Card extends React.PureComponent {
             ) : null}
           </div>
           <div className='card-web-container'>
-            {textMap.parsedWeb ? (
+            {listing.website ? (
               <div>
                 <FontAwesomeIcon icon={"globe"} />
                 <a
                   target='_blank'
                   rel='noopener noreferrer'
-                  href={textMap.parsedWeb}
+                  href={listing.website}
                 >
                   {" website"}
                 </a>
               </div>
             ) : null}
-          </div>
-          {!(textMap.parsedDescription === "") ? (
+          </div>{" "}
+          {!(listing.description === "") ? (
             <div className='card-item'>
               <div className='card-title'>Service Description:</div>
-              <div className='card-content'>{textMap.parsedDescription}</div>
+              <div className='card-content'>{listing.description}</div>
             </div>
           ) : null}
-          {!(textMap.parsedHours === "") ? (
+          {!(listing.hours === "") ? (
             <div className='card-item'>
               <div className='card-title-flex'>
                 <div>Hours:</div>
                 <div className='covid-item'>
-                  {textMap.parsedCOVID.toUpperCase() ===
-                  "HOURS CHANGED DUE TO COVID"
-                    ? textMap.parsedCOVID
-                    : null}
+                {/* KEEP THIS ONE  */}
+                {listing.covidMessage && listing.covidMessage}
                 </div>
               </div>
               <div className='card-content'>
-                {textMap.parsedCOVID.toUpperCase() === "CLOSED DUE TO COVID" ? (
+                {/* KEEP THIS ONE */}
+                {listing.covidMessage.toUpperCase() ===
+                "CLOSED DUE TO COVID" ? (
                   <div className='covid-item'>CLOSED</div>
                 ) : (
-                  textMap.parsedHours
+                  listing.hours
                 )}
               </div>
             </div>
           ) : null}
+          <div>
+            <SUISaveButton />
+          </div>
         </div>
+
         {showMapDetail ? (
           <div className='map-details-container'>
             {record.lat !== "" ? (
@@ -357,8 +394,6 @@ class Cards extends React.PureComponent {
             ShowAtPosition={150}
             EasingType="easeOutCubic"
             AnimationDuration={500}
-            // ContainerClassName="ScrollUpButton__Container"
-            // TransitionClassName="ScrollUpButton__Toggled"
             style={{ left: "50%", bottom: "35px", right: "50%" }}
             ToggledStyle={{}}
           />
@@ -369,8 +404,6 @@ class Cards extends React.PureComponent {
             ShowAtPosition={150}
             EasingType="easeOutCubic"
             AnimationDuration={500}
-            // ContainerClassName="ScrollUpButton__Container"
-            // TransitionClassName="ScrollUpButton__Toggled"
             style={{ left: "240px", bottom: "35px" }}
             ToggledStyle={{}}
           />

@@ -153,6 +153,13 @@ LIGHTER DARK BLUE BACKGROUND:
   flex: 1;
 }
 
+.card-second-row {
+  display: flex; 
+  width: 100%;  
+  grid-column: span 3;
+  height: 100%;
+}
+
 .card-parent {
   grid-column: 1 / span 3;
 }
@@ -162,6 +169,7 @@ LIGHTER DARK BLUE BACKGROUND:
   padding: 5px 10px 10px 10px;
   grid-column: 1 / span 2;
   background: #ecedee;
+  flex-grow: 1;
 }
 
 .card-street > div > a {
@@ -174,7 +182,21 @@ LIGHTER DARK BLUE BACKGROUND:
 }
 
 .card-distance {
-  margin-top: 10px;
+  color: grey;
+  min-width: 80px;
+  padding: 10px;
+}
+/* Show on map button + miles  */
+.card-distance-and-miles {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  text-align: center;
+}
+
+.card-show-button {
   color: grey;
 }
 
@@ -186,6 +208,7 @@ LIGHTER DARK BLUE BACKGROUND:
   grid-column: 1 / span 2;
   color: #393f48;
   padding: 10px;
+  /* padding-top: 0; */
 }
 
 /* the container for the phone icon and numbers */
@@ -209,6 +232,7 @@ on .card-phone-container*/
 .card-web-container {
   grid-column: 3 / span 1;
   padding: 10px;
+  /* padding-top: 0; */
   color: #00adb5;
 }
 
@@ -332,7 +356,6 @@ on .card-phone-container*/
   padding: 5px 5px;
   min-width: 61px;
   max-height: 27px;
-
   vertical-align: middle;
   overflow: hidden;
   text-decoration: none;
