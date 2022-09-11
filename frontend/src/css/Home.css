@@ -148,6 +148,8 @@ LIGHTER DARK BLUE BACKGROUND:
   background: #142A35;
   /* background-color: #1C3A4A; */
   color: white;
+  /* color: #BFDBF7; */
+
   cursor: pointer;
   min-height: 40px;
   width: 100%;
@@ -641,7 +643,6 @@ input[type='checkbox'] {
 
 .rcrOnlineLogoText {
   color: #fff4e0;
-
   font-family: 'Ultra', serif;
   height: auto;
   margin: 0 auto;

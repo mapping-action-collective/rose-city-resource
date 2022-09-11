@@ -19,6 +19,7 @@ body {
     Helvetica Neue, sans-serif;
   box-sizing: border-box;
   background-color: #85898e;
+  background-color: #EBEDEE;
 }
 
 /* This is to make sure that 
@@ -50,6 +51,7 @@ a {
 }
 .main-content {
   background-color: #85898e;
+  background-color: #EBEDEE;
 }
 
 .loading-container {
