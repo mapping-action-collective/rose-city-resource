@@ -200,6 +200,9 @@ class Card extends React.PureComponent {
             </div>
 
             <div className='spacer' />
+                              {(record.lat !== "" || record.lon !== "") && (
+                    <ShowOnMapButton />
+                  )}
           </div>
           {listing.streetAddress != null && listing.streetAddress !== "" && (
             <div className='card-second-row'>
@@ -222,12 +225,12 @@ class Card extends React.PureComponent {
                 </div>
               </div>
               <div className='card-distance-and-miles'>
-                <div style={{width: "100%"}}>
-                  {(record.lat !== "" || record.lon !== "") && (
+                {/* <div style={{width: "100%"}}> */}
+                  {/* {(record.lat !== "" || record.lon !== "") && (
                     <ShowOnMapButton />
-                  )}
+                  )} */}
                   {record.distance !== null && <ShowDistance />}
-                </div>
+                {/* </div> */}
               </div>
             </div>
           )}

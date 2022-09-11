@@ -190,8 +190,8 @@ LIGHTER DARK BLUE BACKGROUND:
 .card-distance-and-miles {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  /* justify-content: center; */
+  /* align-items: center; */
   width: 80px;
   text-align: center;
 }
