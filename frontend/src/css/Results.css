@@ -6,6 +6,8 @@ TEAL:
   #087e8b
 LIGHTER DARK BLUE BACKGROUND:
   #1C3A4A
+SEMANTIC LIGHT GREY BACKGROUND: 
+  #F2F4F5
 */
 
 .leaflet-container {
@@ -110,7 +112,7 @@ LIGHTER DARK BLUE BACKGROUND:
   grid-template-columns: 1fr 1fr 1fr;
   margin: 0.25rem;
   padding: 0.5rem;
-  border-radius: 3px;
+  border-radius: 7px;
   color: #393f48;
   background: white;
   -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
@@ -120,19 +122,31 @@ LIGHTER DARK BLUE BACKGROUND:
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
+.card-container > div > div {
+  border-radius: 5px;
+}
+
 .card-header {
   grid-column: 1 / span 3;
   display: flex;
   justify-content: space-between;
 }
 
+/* CARD LABEL  */
 .card-category {
   font-size: 0.8rem;
-  padding: 3px 8px 3px 8px;
+  padding: 3px 8px;
+  padding: 3px 15px 3px 15px;
   color: white;
   background: #85898e;
+  background-color: rgba(20, 42, 53, .55);
+  /* background-color: rgba(8, 126, 139, .55); */
+  /* background-color: #8CA0A6; */
+  /* background-color: #ABD1B5; */
+  /* background-color: rgba(20, 42, 53, .75); */
   margin-bottom: 5px;
   margin-left: -5px;
+  border-radius: 0 3px 3px 0!important;
 }
 
 /* the listing title */
@@ -169,6 +183,7 @@ LIGHTER DARK BLUE BACKGROUND:
   padding: 5px 10px 10px 10px;
   grid-column: 1 / span 2;
   background: #ecedee;
+  background-color: #E8EBED;
   flex-grow: 1;
 }
 
@@ -190,8 +205,6 @@ LIGHTER DARK BLUE BACKGROUND:
 .card-distance-and-miles {
   display: flex;
   flex-direction: column;
-  /* justify-content: center; */
-  /* align-items: center; */
   width: 80px;
   text-align: center;
 }
@@ -208,7 +221,6 @@ LIGHTER DARK BLUE BACKGROUND:
   grid-column: 1 / span 2;
   color: #393f48;
   padding: 10px;
-  /* padding-top: 0; */
 }
 
 /* the container for the phone icon and numbers */
@@ -232,7 +244,6 @@ on .card-phone-container*/
 .card-web-container {
   grid-column: 3 / span 1;
   padding: 10px;
-  /* padding-top: 0; */
   color: #00adb5;
 }
 
@@ -471,4 +482,9 @@ on .card-phone-container*/
     margin: auto;
     width: 75%;
   }
+}
+
+.footer-buttons {
+  grid-column: span 3;
+  display: flex;
 }

@@ -23,10 +23,14 @@ TEAL:
   #087e8b
 LIGHTER DARK BLUE BACKGROUND:
   #1C3A4A
+SEMANTIC LIGHT GREY BACKGROUND: 
+  #F2F4F5
 */
 
 //2022 color scheme
 const primaryTeal = '#087e8b';
+const lightGrey = '#F2F4F5'
+const ivory = '#FFFDED'
 
 const DetailMap = (props) => {
   return (
@@ -52,7 +56,7 @@ const DetailMap = (props) => {
 //style for background card style 
 //when a location is selected by user
 const selectedCardStyle = { boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.5)" }
-const selectedListingTitle = { color: "#087e8b", fontWeight: "bolder" }
+const selectedListingTitle = { color: "green", fontWeight: "bolder" }
 
 
 class Card extends React.PureComponent {
@@ -119,42 +123,40 @@ class Card extends React.PureComponent {
     </button>
     )
 
-    const SaveButton = () => (
+    const ShowOnMapButtonFooter = () => (
       <button
-        className='card-save-button'
-        data-tip='Save listing, print later.'
-        data-for='save-tooltip'
-        onClick={() => handleCardSave(record.id)}
+        className='ui button basic fluid tiny teal'
+        data-tip='Show on map.'
+        data-for='show-listing-tooltip'
+        onClick={() => {
+          handleCardClick(this.cardRef, record.id);
+          updateListing(record.id, "card");
+        }}
       >
-        <FontAwesomeIcon
-          icon='save'
-          size='sm'
-          style={
-            savedDataId.indexOf(record.id) > -1
-              ? {color: primaryTeal}
-              : null
-          }
-        />
-        Save
-        <ReactTooltip
-          id='save-tooltip'
-          place='top'
-          type='dark'
-          effect='solid'
-        />
-      </button>
+      <i className='ui icon map marker alternate'
+        style={selectedListing === record.id ? {color: 'green'} : {color: primaryTeal}}
+      />
+      Show on Map
+      <ReactTooltip
+        id='show-listing-tooltip'
+        place='top'
+        type='dark'
+        effect='solid'
+      />
+    </button>
     )
 
-    const SUISaveButton = () => {
+    const SaveButton = () => {
       const isSaved = savedDataId.indexOf(record.id) > -1;
       return (
         <button
-          className='ui button basic mini fluid'
+          className='ui button basic tiny fluid teal'
           data-tip='Save listing, print later.'
           data-for='save-tooltip'
           onClick={() => handleCardSave(record.id)}
         >
-          <i style={{color: primaryTeal}}
+          <i 
+            // style={{color: primaryTeal}}
             className={isSaved ? "ui icon bookmark" : "ui icon bookmark outline"}
           />
           {isSaved ? 'Unsave' : 'Save'}
@@ -168,16 +170,14 @@ class Card extends React.PureComponent {
       );
     }
 
-
-
     const ShowDistance = () => (
       <div className='card-distance'>
         {`${Number(record.distance.toFixed(1))} mi`}
       </div>
     )
 
-    // We don't want to display cards without titles 
-    if (!listing.listingTitle) return null;
+    // We don't want to display cards without titles AND descriptions
+    if (!listing.listingTitle || !listing.description) return null;
 
     return (
       <div className='card-map-container'>
@@ -192,27 +192,20 @@ class Card extends React.PureComponent {
           <div className='card-header'>
             <div
               className='card-listing'
-              style={
-                selectedListing === record.id ? selectedListingTitle : null
-              }
+              style={selectedListing === record.id ? selectedListingTitle : null}
             >
               {listing.listingTitle}
             </div>
 
             <div className='spacer' />
-                              {(record.lat !== "" || record.lon !== "") && (
-                    <ShowOnMapButton />
-                  )}
+              {(record.lat !== "" || record.lon !== "") && (
+                <ShowOnMapButton />
+              )}
           </div>
           {listing.streetAddress != null && listing.streetAddress !== "" && (
             <div className='card-second-row'>
               <div className='card-street'>
                 <div>
-                  {/* <FontAwesomeIcon
-                  className='card-map-marker'
-                  icon='map-marker'
-                  size='sm'
-                /> */}
                   {listing.streetAddress} <br />
                   {listing.city} <br />
                   <a
@@ -289,8 +282,9 @@ class Card extends React.PureComponent {
               </div>
             </div>
           ) : null}
-          <div>
-            <SUISaveButton />
+          <div className='footer-buttons'>
+            <SaveButton />
+            {/* <ShowOnMapButtonFooter /> */}
           </div>
         </div>
 
