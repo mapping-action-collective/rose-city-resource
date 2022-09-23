@@ -94,7 +94,10 @@ class Card extends React.PureComponent {
       description: cardTextFilter(formatDescription(record.service_description)),
       hours: cardTextFilter(record.hours),
       covidMessage: cardTextFilter(record.covid_message),
+      parentOrg: record.parent_organization
     };
+
+    console.log('record', record)
 
     const ShowOnMapButton = () => (
       <button
@@ -150,7 +153,8 @@ class Card extends React.PureComponent {
       const isSaved = savedDataId.indexOf(record.id) > -1;
       return (
         <button
-          className='ui button basic tiny fluid teal'
+          className='ui button basic mini'
+          style={{ border: `.75px solid lightgrey`}}
           data-tip='Save listing, print later.'
           data-for='save-tooltip'
           onClick={() => handleCardSave(record.id)}

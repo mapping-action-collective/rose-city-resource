@@ -183,10 +183,10 @@ const CREATE_PREVIEW_TABLE = `
   );
 `;
 
-const DROP_PRODUCTION_TABLE = `DROP TABLE IF EXISTS test_production_data`;
+const DROP_PRODUCTION_TABLE = `DROP TABLE IF EXISTS production_data`;
 
 const CREATE_PRODUCTION_TABLE = `
-  CREATE TABLE test_production_data AS SELECT * FROM test_preview_data;
+  CREATE TABLE production_data AS SELECT * FROM test_preview_data;
 `;
 
 const INSERT_INTO_PREVIEW_TABLE = `
@@ -276,3 +276,5 @@ module.exports = {
   promotePreviewToProd,
   getDateUpdated,
 };
+
+promotePreviewToProd()

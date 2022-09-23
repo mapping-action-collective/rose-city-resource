@@ -140,13 +140,9 @@ SEMANTIC LIGHT GREY BACKGROUND:
   color: white;
   background: #85898e;
   background-color: rgba(20, 42, 53, .55);
-  /* background-color: rgba(8, 126, 139, .55); */
-  /* background-color: #8CA0A6; */
-  /* background-color: #ABD1B5; */
-  /* background-color: rgba(20, 42, 53, .75); */
   margin-bottom: 5px;
   margin-left: -5px;
-  border-radius: 0 3px 3px 0!important;
+  border-radius: 5px!important;
 }
 
 /* the listing title */
