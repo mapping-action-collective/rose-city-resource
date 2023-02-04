@@ -6,6 +6,9 @@ const session = require("express-session");
 const path = require('path');
 const bcrypt = require('bcrypt');
 var sanitizeHtml = require('sanitize-html');
+// const Airtable = require('airtable');
+// const airtable = Airtable.configure({ apiKey: process.env.AIRTABLE_API_KEY })
+// const airtableBase = .base(process.env.AIRTABLE_BASE_ID)
 
 module.exports = (app, pool) => {
 
@@ -39,6 +42,17 @@ module.exports = (app, pool) => {
 
       if (action === 'runetl') {
         /* The 'Import to Staging' button was clicked */
+
+        // airtableBase('listings').select({
+        //   // Selecting the first 3 records in "Parent Orgs" Groups (Grid view):
+        //   maxRecords: 0,
+        //   view: "Winter's View"
+        // }).eachPage(function page(records, fetchNextPage) {
+        //     // This function (`page`) will get called for each page of records.
+        //     fetchNextPage();
+        // }, function done(err) {
+        //     if (err) { console.error(err); return; }
+        // })
 
         /* Prepare to run the ETL script */
         await clearTables().catch(e => console.error('Error clearing tables from Node.js', e.stack));

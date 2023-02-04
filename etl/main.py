@@ -71,8 +71,13 @@ def create_import_table(table_name, json_data):
     columns = data.columns
     new_columns = []
     for column in columns:
-        new_columns.append(str(column).replace(
-            "fields.", "").replace(" ", "_").replace("-", ""))
+        new_columns.append(str(column)
+                           .replace("fields.", "")
+                           .replace(" ", "_")
+                           .replace("-", "")
+                           .replace("(", "")
+                           .replace(")", "")
+                           )
     data.columns = new_columns
 
     # Drop and Create the table
