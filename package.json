@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A digital version of the Street Roots Rose City Resource",
   "scripts": {
-    "postinstall": "npm install --prefix frontend && npm install --prefix backend",
+    "postinstall": "npm install --prefix frontend --legacy-peer-deps && npm install --prefix backend --legacy-peer-deps",
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
   },
   "dependencies": {

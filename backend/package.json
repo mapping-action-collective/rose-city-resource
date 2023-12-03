@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/timhitchins/rose-city-resource.git"
+    "url": "https://github.com/mapping-action-collective/rose-city-resource.git"
   },
   "author": "Tim Hitchins / Mapping Action Collective",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/timhitchins/rose-city-resource/issues"
+    "url": "https://github.com/mapping-action-collective/rose-city-resource/issues"
   },
-  "homepage": "https://github.com/timhitchins/rose-city-resource#readme",
+  "homepage": "https://github.com/mapping-action-collective/rose-city-resource#readme",
   "dependencies": {
     "bcrypt": "^5.0.1",
     "compression": "^1.7.4",
