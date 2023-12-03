@@ -215,7 +215,7 @@ class App extends React.PureComponent {
                       window.location.href = [
                         window.location.protocol,
                         "//",
-                        window.location.host.replace(/\d+/, "5000"),
+                        window.location.host.replace(/\d+/, "5900"),
                         "/admin/dashboard",
                       ].join("");
                     }}
