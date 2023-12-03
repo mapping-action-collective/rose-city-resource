@@ -230,7 +230,7 @@ export function cardPhoneTextFilter(record) {
   const split = rawphone.split(",");
   if (split != null && split.length && split.length > 0) {
     return split.map((number) => {
-      if (number.includes(":")) {
+      if (number?.includes(":")) {
         return {
           type: number.split(":")[0],
           phone: number.split(":")[1],
@@ -308,7 +308,7 @@ export function cardDetailsFilter(records, savedIds) {
   }
 
   const filteredDetailsData = records.filter((r) =>
-    savedIds.includes(r.id.toString())
+    savedIds?.includes(r.id.toString())
   );
 
   return filteredDetailsData;
@@ -401,7 +401,7 @@ function getFilteredSearchData(searchValue, records) {
         return String(val).toLowerCase();
       } //I miss R
     );
-    if (recordValsLower.join(" ").includes(String(searchValue).toLowerCase())) {
+    if (recordValsLower?.join(" ")?.includes(String(searchValue)?.toLowerCase())) {
       record.directionsUrl = directionsUrlBuilder(
         record.street,
         record.city,

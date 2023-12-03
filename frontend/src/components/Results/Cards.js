@@ -1,5 +1,6 @@
 import React from "react";
-import ScrollUpButton from "react-scroll-up-button";
+//import ScrollUpButton from "react-scroll-up-button";
+// TODO: change to react-scroll-up instead of react-scroll-up-button, due to incompatibility with moden packages
 import ReactTooltip from "react-tooltip";
 import MediaQuery from "react-responsive";
 import { Map, TileLayer, Marker } from "react-leaflet";
@@ -347,7 +348,7 @@ class Cards extends React.PureComponent {
           />
         ))}
         <MediaQuery query="(max-width: 992px)">
-          <ScrollUpButton
+          {/* <ScrollUpButton
             StopPosition={0}
             ShowAtPosition={150}
             EasingType="easeOutCubic"
@@ -356,10 +357,10 @@ class Cards extends React.PureComponent {
             // TransitionClassName="ScrollUpButton__Toggled"
             style={{ left: "50%", bottom: "35px", right: "50%" }}
             ToggledStyle={{}}
-          />
+          /> */}
         </MediaQuery>
         <MediaQuery query="(min-width: 993px)">
-          <ScrollUpButton
+          {/* <ScrollUpButton
             StopPosition={0}
             ShowAtPosition={150}
             EasingType="easeOutCubic"
@@ -368,7 +369,7 @@ class Cards extends React.PureComponent {
             // TransitionClassName="ScrollUpButton__Toggled"
             style={{ left: "240px", bottom: "35px" }}
             ToggledStyle={{}}
-          />
+          /> */}
         </MediaQuery>
       </div>
     );
