@@ -211,7 +211,7 @@ class App extends React.PureComponent {
                   />
                   <Route
                     path="/admin"
-                    render={props => {
+                    render={() => {
                       window.location.href = [
                         window.location.protocol,
                         "//",

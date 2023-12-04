@@ -148,7 +148,7 @@ class AdvancedSearchModal extends React.PureComponent {
                 return (
                   <div key={genCat} className="modal-search-item">
                     <div className="modal-search-item-title">{genCat}</div>
-                    {Object.keys(mainCatsMap[genCat]).map((mainCat) => {
+                    {Object.keys(mainCatsMap[genCat] ?? []).map((mainCat) => {
                       return (
                         <React.Fragment key={mainCat}>
                           <label

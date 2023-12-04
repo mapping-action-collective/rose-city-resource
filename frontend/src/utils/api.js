@@ -199,14 +199,14 @@ export function getMainSearchData(records) {
     "Specialized Assistance",
   ];
 
-  const mainCats = genCats.map((cat, i) => {
+  const mainCats = genCats.map((cat) => {
     const filterCats = records.filter(
       (record) => record.general_category === cat
     );
     return filterCats;
   });
 
-  const mainCatsCount = mainCats.map((cat, i) => {
+  const mainCatsCount = mainCats.map((cat) => {
     const catVals = cat.map((c) => {
       return c["main_category"];
     });

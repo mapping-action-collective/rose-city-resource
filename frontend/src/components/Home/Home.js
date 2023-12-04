@@ -1,10 +1,10 @@
-import React from 'react';
+//import React from 'react';
 import PropTypes from 'prop-types';
 import IconSelector from './IconSelector';
 import SearchBar from './SearchBar';
 import '../../css/Home.css';
 
-const BasicInstructions = props => {
+const BasicInstructions = () => {
   return (
     <div className="basic-instructions">
       Find reduced cost or free services in Multnomah, Washington and Clackamas

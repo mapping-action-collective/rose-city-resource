@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import MediaQuery from "react-responsive";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { CSSTransition } from "react-transition-group";
+// import { CSSTransition } from "react-transition-group";
 import { objectKeyByValue, queryBuilder } from "../../utils/api.js";
 
 // font awesome icons color
@@ -106,7 +106,7 @@ const PrimaryIconsSmall = ({
           classNames="browse-drawer"
           mountOnEnter={true}
         >
-          {(state) => {
+          {(/*state*/) => {
             return (
               <div className="icons-container">
                 {Object.keys(iconMap).map((icon) => {
@@ -183,7 +183,7 @@ const SecondaryIcons = ({
           timeout={500}
           classNames="browse-drawer"
         >
-          {(status) => (
+          {(/*status*/) => (
             <div className="icons-container">
               <div
                 className="selected-item"

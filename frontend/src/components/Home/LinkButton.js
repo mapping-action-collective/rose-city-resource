@@ -1,13 +1,13 @@
-import React from 'react';
+//import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 
 const LinkButton = props => {
   const {
     history,
-    location,
-    match,
-    staticContext,
+    // location,
+    // match,
+    // staticContext,
     to,
     onClick,
     // ⬆ filtering out props that `button` doesn’t know what to do with.
