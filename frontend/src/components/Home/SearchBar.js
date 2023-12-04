@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
-import LinkButton from "./LinkButton";
+//import LinkButton from "./LinkButton";
 import '../../css/Home.css';
 import { getFilteredSearchList, queryBuilder } from "../../utils/api";
 
@@ -283,13 +283,13 @@ export default class SearchBar extends React.PureComponent {
           {/* W.8.23.20 QUESTION: how can we change this to handle multiple search terms? or misspellings, alternate capitalization, etc? 
           
           right now it only works if a single search term is spelled exactly correctly, with the words in order. for example, we have both Spanish language services, and mental health services in the database, but "spanish mental health" has 0 matches. What's the best way to fix this? */}
-          <LinkButton
+          <Link
             className="search-button"
             to={`/results?search=${searchValue}`}
             onClick={this.handleSubmit}
           >
             <FontAwesomeIcon icon="search" />
-          </LinkButton>
+          </Link>
         </form>
         <div className="advanced-search" onClick={this.toggleAdvSearchModal}>
           Advanced Search

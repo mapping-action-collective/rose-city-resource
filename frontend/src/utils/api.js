@@ -32,7 +32,6 @@ export async function addUserDistancesToRecords(records) {
   try {
     let currentCoords;
     const position = await inOutLocation();
-    //console.log('POSITION',position)
     if (position !== undefined && position !== null) {
       currentCoords = [position.coords.latitude, position.coords.longitude];
     } else {
@@ -351,8 +350,8 @@ function getFilteredCatParentData(categoryVals, parentVals, records) {
     ...handleArray(categoryVals),
     ...handleArray(parentVals),
   ].filter((el) => el !== null);
-
-  return records.filter((record) => {
+  const filteredRecords = []
+  records.forEach((record) => {
     //create another array to see if checkVals are in
     //the nodeVals
     const nodeVals = [
@@ -369,11 +368,10 @@ function getFilteredCatParentData(categoryVals, parentVals, records) {
         record.city,
         record.postal_code
       );
-      return record;
-    } else {
-      return null;
+      filteredRecords.push(record)
     }
-  });
+  })
+  return filteredRecords;
 }
 
 //check if a search value is in the NODE record

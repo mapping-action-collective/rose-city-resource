@@ -8,7 +8,7 @@ import Details from "./Details";
 import Nav from "./Nav";
 import Footer from "./static_components/Footer";
 import Banner from './Banner'
-import { HashRouter as Router, Route, Switch } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import {
   getRecords,
   addUserDistancesToRecords,
@@ -170,44 +170,41 @@ class App extends React.PureComponent {
                   : <React.Fragment />
                 }
                 <Nav />
-                <Switch>
+                <Routes>
                   <Route
                     exact
                     path="/"
-                    component={(props) => (
+                    element={
                       <Home
-                        {...props}
                         records={records}
                         searchData={searchData}
                       />
-                    )}
+                    }
                   />
-                  <Route exact path="/about" component={About} />
-                  <Route exact path="/suggest-edit" component={SuggestEdit} />
+                  <Route exact path="/about" element={<About />} />
+                  <Route exact path="/suggest-edit" element={<SuggestEdit />} />
                   <Route
                     path="/results"
-                    component={(props) => (
+                    element={
                       <Results
-                        {...props}
                         records={records}
                         searchData={searchData}
                         handleCardSave={this.handleCardSave}
                         handleSaveDelete={this.handleSaveDelete}
                         savedDataId={savedDataId}
                       />
-                    )}
+                    }
                   />
                   <Route
                     exact
                     path="/details"
-                    component={(props) => (
+                    element={
                       <Details
-                        {...props}
                         records={records}
                         handleCardSave={this.handleCardSave}
                         savedDataId={savedDataId}
                       />
-                    )}
+                    }
                   />
                   <Route
                     path="/admin"
@@ -222,7 +219,7 @@ class App extends React.PureComponent {
                   />
                   {/* for all other routes */}
                   <Route render={() => <p>Not Found</p>} />
-                </Switch>
+                </Routes>
               </div>
               <Footer revisionDate={this.revisionDate} />
             </div>

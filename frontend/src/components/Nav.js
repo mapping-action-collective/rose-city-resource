@@ -20,8 +20,8 @@ const NavDrawer = ({ navVisible, onClick }) => (
         <div className="navdrawer">
           <NavLink
             className="nav-drawer-item"
-            activeClassName="nav-drawer-item-active"
-            exact
+            //activeClassName="nav-drawer-item-active"
+            //exact
             to="/about"
             onClick={onClick}
           >
@@ -29,8 +29,8 @@ const NavDrawer = ({ navVisible, onClick }) => (
           </NavLink>
           <NavLink
             className="nav-drawer-item"
-            activeClassName="nav-drawer-item-active"
-            exact
+            //activeClassName="nav-drawer-item-active"
+            //exact
             to="/suggest-edit"
             onClick={onClick}
           >
@@ -72,8 +72,8 @@ class Nav extends React.PureComponent {
             </div>
             <div className="rcr-logo">
               <NavLink
-                exact
-                activeClassName="logo-active"
+                //exact
+                //activeClassName="logo-active"
                 to="/"
                 onClick={this.logoDrawerToggle}
               >
@@ -84,16 +84,16 @@ class Nav extends React.PureComponent {
             <MediaQuery query="(min-width: 600px)">
               <NavLink
                 className="nav-item"
-                exact
-                activeClassName="nav-item-active "
+                //exact
+                //activeClassName="nav-item-active "
                 to="/about"
               >
                 ABOUT
               </NavLink>
               <NavLink
                 className="nav-item"
-                exact
-                activeClassName="nav-item-active "
+                //exact
+                //activeClassName="nav-item-active "
                 to="/suggest-edit"
               >
                 SUGGEST UPDATE
