@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import MediaQuery from "react-responsive";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { CSSTransition } from "react-transition-group";
+import { CSSTransition } from "react-transition-group";
 import { objectKeyByValue, queryBuilder } from "../../utils/api.js";
 
 // font awesome icons color

@@ -64,7 +64,7 @@ class Card extends React.PureComponent {
       savedDataId,
       showMapDetail,
     } = this.props;
-
+  
     const textMap = {
       parsedCategory: record.main_category,
       parsedListing: record.listing,
@@ -114,7 +114,7 @@ class Card extends React.PureComponent {
                 data-for="show-listing-tooltip"
                 onClick={() => {
                   handleCardClick(this.cardRef, record.id);
-                  updateListing(record.id, "card");
+                  updateListing?.(record.id, "card"); // Cards on the Details page don't receive this prop
                 }}
               >
                 <FontAwesomeIcon

@@ -3,39 +3,41 @@ import { Link, useLocation } from 'react-router-dom';
 import queryString from 'query-string';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import IconSelector from '../Home/IconSelector';
-import SearchBar from '../Home/SearchBar';
+import { SearchBar } from '../Home/SearchBar';
 import Cards from './Cards';
 import SimpleMap from './Map';
 import { getFilteredRecords, detailsQueryBuilder } from '../../utils/api';
 import '../../css/Results.css';
 
 const Results = (props) => {
-  const [state, setState] = useState({
-    queryVals: null,
-    data: null,
-    selectedListing: null,
-    loading: true,
-    clickType: null //to keep track of how scroll should happen
-  });
-
+//  const [queryVals, setQueryVals] = useState(null);
+//  const [data, setData] = useState(null);
+  const [selectedListing, setSelectedListing] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [clickType, setClickType] = useState(null);  //to keep track of how scroll should happen
+ 
   const location = useLocation();
 
   const updateListing = (id, clickType) => {
-    setState(prevState => ({ ...prevState, selectedListing: id, clickType }));
+    setSelectedListing(id);
+    setClickType(clickType);
+    // setState(prevState => ({ ...prevState, selectedListing: id, clickType }));
   };
 
-  useEffect(() => {
+  const query = queryString.parse(location.search);
+  const dataMap = {
+    search: query.search,
+    category: query.category,
+    parent: query.parent
+  };
 
-    const queryVals = queryString.parse(location?.search);
+  const { records } = props;
 
-    const dataMap = {
-      search: queryVals.search,
-      category: queryVals.category,
-      parent: queryVals.parent
-    };
+useEffect(() => {
+  setLoading(false)
+}, [])
 
-    const { records } = props;
-
+//  useEffect(() => {
     const data = getFilteredRecords(
       dataMap.search,
       dataMap.category,
@@ -43,17 +45,18 @@ const Results = (props) => {
       records
     );
 
-    setState(prevState => ({
-      ...prevState,
-      queryVals: dataMap,
-      data,
-      loading: false
-    }));
-  }, [location?.search, props.records]);
+   // const queryVals = dataMap
+//    setData(data)
 
-  const { data, loading, selectedListing, clickType } = state;
+    // setState(prevState => ({
+    //   ...prevState,
+    //   queryVals: dataMap,
+    //   data,
+    //   loading: false
+    // }));
+//  }, []);
+
   const {
-    records,
     searchData,
     handleCardSave,
     handleSaveDelete,

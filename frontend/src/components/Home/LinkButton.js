@@ -1,34 +1,30 @@
 //import React from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const LinkButton = props => {
   const {
-    history,
+    //history,
     // location,
     // match,
     // staticContext,
     to,
-    onClick,
+    //onClick,
     // ⬆ filtering out props that `button` doesn’t know what to do with.
     ...rest
   } = props;
   return (
-    <button
-      {...rest} // `children` is just another prop!
-      onClick={event => {
-        onClick && onClick(event);
-        history.push(to);
-      }}
-      type="submit"
-      disabled={false}
-    />
+    <Link to={to}>
+      <button
+        {...rest} // `children` is just another prop!
+        // onClick={event => {
+        //   onClick && onClick(event);
+        //   history.push(to);
+        // }}
+        //type="submit"
+        disabled={false}
+      />
+    </Link>
   );
 };
 
-LinkButton.propTypes = {
-  to: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired
-};
-
-export default withRouter(LinkButton);
+export default LinkButton

@@ -126,6 +126,7 @@ export function getFilteredRecords(
 ) {
   //if the searchVal is undefined then
   //do this
+
   if (searchVals === undefined) {
     const filteredrecords = getFilteredCatParentData(
       categoryVals,
@@ -386,12 +387,13 @@ function getFilteredSearchData(searchValue, records) {
   ) {
     return null;
   }
-  //Polyfill from SO to use toLowerCase()
-  if (!String.toLowerCase) {
-    String.toLowerCase = function (s) {
-      return String(s).toLowerCase();
-    };
-  }
+  // I don't think we need this any more
+  // //Polyfill from SO to use toLowerCase()
+  // if (!String.toLowerCase) {
+  //   String.toLowerCase = function (s) {
+  //     return String(s).toLowerCase();
+  //   };
+  // }
 
   const filterData = records.map((record) => {
     const recordValsLower = Object.values(record).map(
@@ -399,7 +401,13 @@ function getFilteredSearchData(searchValue, records) {
         return String(val).toLowerCase();
       } //I miss R
     );
-    if (recordValsLower?.join(" ")?.includes(String(searchValue)?.toLowerCase())) {
+
+    // Text search was quite slow, so a Set helps a bit
+    // We should use some type of fuzzy matching to enhance this
+    const recordSet = new Set(recordValsLower);
+    const searchValueLower = String(searchValue).toLowerCase();
+
+    if (recordSet.has(searchValueLower)) {
       record.directionsUrl = directionsUrlBuilder(
         record.street,
         record.city,
