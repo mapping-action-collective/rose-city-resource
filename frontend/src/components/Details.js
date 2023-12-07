@@ -67,7 +67,8 @@ const Details = (props) => {
 
     const { records } = props;
     const queryVals = queryString.parse(location.search);
-    const detailsData = cardDetailsFilter(records, [...queryVals.saved]);
+    const savedIds = Array.isArray(queryVals.saved) ? queryVals.saved : [queryVals.saved];
+    const detailsData = cardDetailsFilter(records, savedIds);
 
   useEffect(() => {
     setCardDetailsData(

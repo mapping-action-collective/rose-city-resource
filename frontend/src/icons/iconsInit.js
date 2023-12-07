@@ -24,6 +24,7 @@ import { faPrint } from '@fortawesome/free-solid-svg-icons/faPrint';
 import { faSave } from '@fortawesome/free-solid-svg-icons/faSave';
 import { faMapMarker } from '@fortawesome/free-solid-svg-icons/faMapMarker';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons/faSpinner';
+import { faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons/faLocationCrosshairs';
 
 /*
 Font Awesome Icons:
@@ -66,7 +67,8 @@ const appIcons = {
   print: faPrint,
   save: faSave,
   mapMarker: faMapMarker,
-  spinner: faSpinner
+  spinner: faSpinner,
+  locationCrosshairs: faLocationCrosshairs
 };
 
 //add them to the library to be used in all components

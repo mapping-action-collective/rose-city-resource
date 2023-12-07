@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import LinkButton from "./LinkButton";
 import '../../css/Home.css';
 import { getFilteredSearchList, queryBuilder } from "../../utils/api";
@@ -198,19 +198,18 @@ export const SearchBar = (props) => {
 //  const [filterSearchList, setFilterSearchList] = useState(null);
   const [showAdvSearchModal, setShowAdvSearchModal] = useState(false);
   const { records, searchData, match } = props;
+  const navigate = useNavigate();
 
-  //for whan a user startt to enter seach item
-  function handleChange(event) {
-    const value = event.target.value;
-
+  function handleChange(e) {
+    const value = e.target.value;
     setSearchValue(value);
   };
 
-  //run when the user submits the search
-  // function handleSubmit(event) {
-  //   //we use event.prevetDefault so that the submit doesn't go to a server
-  //   //event.preventDefault();
-  // };
+  function handleKeyPress (e) {
+    if (e.key == 'Enter') {
+        navigate(`/results?search=${searchValue}`)
+    }
+  }
 
   function toggleAdvSearchModal() {
     setShowAdvSearchModal(!showAdvSearchModal);
@@ -233,7 +232,6 @@ export const SearchBar = (props) => {
     <div className="search-bar">
       <form
         className=""
-        //onSubmit={handleSubmit}
         style={{ width: "100%" }}
       >
         <input
@@ -242,9 +240,9 @@ export const SearchBar = (props) => {
           placeholder="Search..."
           type="text"
           autoComplete="off"
-          //bind the value of our state to the input field
-          value={searchValue}
+          value={searchValue} // Setting `value` makes <input> a controlled element
           onChange={handleChange}
+          onKeyUp={handleKeyPress}
           list="data"
         />
         {/* loop through the list of options */}

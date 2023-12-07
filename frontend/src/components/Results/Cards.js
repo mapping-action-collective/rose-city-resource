@@ -1,9 +1,10 @@
 import React from "react";
+import ScrollToTop from "react-scroll-up";
 //import ScrollUpButton from "react-scroll-up-button";
 // TODO: change to react-scroll-up instead of react-scroll-up-button, due to incompatibility with moden packages
 import ReactTooltip from "react-tooltip";
 import MediaQuery from "react-responsive";
-import { Map, TileLayer, Marker } from "react-leaflet";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CountBar from "./CountBar";
 import {
@@ -13,11 +14,12 @@ import {
   cardWebAddressFixer,
 } from "../../utils/api";
 import { greenLMarker } from "../../icons/mapIcons";
+import { faAnglesUp } from '@fortawesome/free-solid-svg-icons'
 
 const DetailMap = (props) => {
   return (
     <React.Fragment>
-      <Map
+      <MapContainer
         center={props.coords}
         zoom={15}
         scrollWheelZoom={true}
@@ -25,12 +27,9 @@ const DetailMap = (props) => {
         dragging={true}
         touchZoom={true}
       >
-        <TileLayer
-          attribution=""
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        />
+        <TileLayer attribution = '' url='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png' />
         <Marker position={props.coords} icon={greenLMarker} />
-      </Map>
+      </MapContainer>
     </React.Fragment>
   );
 };
@@ -64,7 +63,7 @@ class Card extends React.PureComponent {
       savedDataId,
       showMapDetail,
     } = this.props;
-  
+
     const textMap = {
       parsedCategory: record.main_category,
       parsedListing: record.listing,
@@ -348,28 +347,40 @@ class Cards extends React.PureComponent {
           />
         ))}
         <MediaQuery query="(max-width: 992px)">
-          {/* <ScrollUpButton
-            StopPosition={0}
-            ShowAtPosition={150}
-            EasingType="easeOutCubic"
-            AnimationDuration={500}
-            // ContainerClassName="ScrollUpButton__Container"
-            // TransitionClassName="ScrollUpButton__Toggled"
-            style={{ left: "50%", bottom: "35px", right: "50%" }}
-            ToggledStyle={{}}
-          /> */}
+          <ScrollToTop showUnder={160} style={{
+            position: 'fixed',
+            bottom: 50,
+            left: 320,
+            cursor: 'pointer',
+            transitionDuration: '0.2s',
+            transitionTimingFunction: 'linear',
+            transitionDelay: '0s',
+            fontSize: '60px',
+            color: 'gray'
+          }}>
+            <FontAwesomeIcon
+              icon={faAnglesUp}
+              size="lg"
+            />
+          </ScrollToTop>
         </MediaQuery>
         <MediaQuery query="(min-width: 993px)">
-          {/* <ScrollUpButton
-            StopPosition={0}
-            ShowAtPosition={150}
-            EasingType="easeOutCubic"
-            AnimationDuration={500}
-            // ContainerClassName="ScrollUpButton__Container"
-            // TransitionClassName="ScrollUpButton__Toggled"
-            style={{ left: "240px", bottom: "35px" }}
-            ToggledStyle={{}}
-          /> */}
+        <ScrollToTop showUnder={160} style={{
+            position: 'fixed',
+            bottom: 50,
+            left: 220,
+            cursor: 'pointer',
+            transitionDuration: '0.2s',
+            transitionTimingFunction: 'linear',
+            transitionDelay: '0s',
+            fontSize: '50px',
+            color: 'gray'
+          }}>
+            <FontAwesomeIcon
+              icon={faAnglesUp}
+              size="lg"
+            />
+          </ScrollToTop>
         </MediaQuery>
       </div>
     );

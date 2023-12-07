@@ -13,7 +13,7 @@ export async function getMetaInformation() {
       handleError();
     })
     .then((r) => {
-      if (r.ok) {
+      if (r?.ok) {
         return r.json().catch((e) => {
           console.error(e);
         });

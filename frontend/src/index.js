@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { render } from 'react-dom'; // eslint-disable-line react/no-deprecated
 import WebFont from 'webfontloader';
 import App from './components/App';
 import './css/main.css';
