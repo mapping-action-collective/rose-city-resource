@@ -37,7 +37,7 @@
     "react-router-dom": "^6.20.1",
     "react-scripts": "^5.0.1",
     "react-scroll-up": "^1.4.0",
-    "react-tooltip": "^4.2.21",
+    "react-tooltip": "^5.25.0",
     "react-transition-group": "^4.4.2",
     "sanitize-html": "^2.4.0",
     "sass-loader": "^13.3.2",

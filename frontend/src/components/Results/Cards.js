@@ -1,8 +1,6 @@
 import React from "react";
 import ScrollToTop from "react-scroll-up";
-//import ScrollUpButton from "react-scroll-up-button";
-// TODO: change to react-scroll-up instead of react-scroll-up-button, due to incompatibility with moden packages
-import ReactTooltip from "react-tooltip";
+import { Tooltip } from "react-tooltip";
 import MediaQuery from "react-responsive";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -124,7 +122,7 @@ class Card extends React.PureComponent {
                   }
                 />
                 Show
-                <ReactTooltip
+                <Tooltip
                   id="show-listing-tooltip"
                   place="top"
                   type="dark"
@@ -150,7 +148,7 @@ class Card extends React.PureComponent {
                     }
                   />
                   Save
-                  <ReactTooltip
+                  <Tooltip
                     id="save-tooltip"
                     place="top"
                     type="dark"
