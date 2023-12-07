@@ -1,5 +1,4 @@
 //import React from 'react';
-import PropTypes from 'prop-types';
 import IconSelector from './IconSelector';
 import { SearchBar } from './SearchBar';
 import '../../css/Home.css';
@@ -40,10 +39,5 @@ const Home = props => {
     </section>
   );
 }
-
-
-Home.propTypes = {
-  records: PropTypes.array.isRequired
-};
 
 export default Home;

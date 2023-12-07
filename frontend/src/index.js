@@ -4,7 +4,6 @@ import WebFont from 'webfontloader';
 import App from './components/App';
 import './css/main.css';
 import 'leaflet/dist/leaflet.css'; //regular leaflet
-import 'react-leaflet-markercluster/dist/styles.min.css'; //markerCluster
 import 'leaflet-control-geocoder/dist/Control.Geocoder.css'; //geocoder
 
 // annoying hack to deal with webpack and marker icon

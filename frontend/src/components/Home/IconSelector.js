@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import MediaQuery from "react-responsive";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -64,15 +63,6 @@ const PrimaryIconsLarge = ({
       </div>
     </MediaQuery>
   );
-};
-
-PrimaryIconsLarge.propTypes = {
-  onMouseEnter: PropTypes.func.isRequired,
-  onMouseExit: PropTypes.func.isRequired,
-  showDropdown: PropTypes.bool.isRequired,
-  iconMap: PropTypes.object.isRequired,
-  searchData: PropTypes.object,
-  selectedData: PropTypes.object,
 };
 
 /* Mobile display of main "Food," "Goods," etc icons */
@@ -144,12 +134,6 @@ const PrimaryIconsSmall = ({
       </div>
     </MediaQuery>
   );
-};
-
-PrimaryIconsSmall.propTypes = {
-  onSelectFwd: PropTypes.func.isRequired,
-  iconMap: PropTypes.object.isRequired,
-  searchData: PropTypes.object.isRequired,
 };
 
 const SecondaryIcons = ({
@@ -228,14 +212,6 @@ const SecondaryIcons = ({
       </div>
     </MediaQuery>
   );
-};
-
-SecondaryIcons.propTypes = {
-  onSelectBack: PropTypes.func.isRequired,
-  selectedItem: PropTypes.string.isRequired,
-  selectedData: PropTypes.object.isRequired,
-  searchData: PropTypes.object.isRequired,
-  iconMap: PropTypes.object.isRequired,
 };
 
 class Selectors extends React.PureComponent {
@@ -339,25 +315,8 @@ class Selectors extends React.PureComponent {
   }
 }
 
-Selectors.propTypes = {
-  onMouseEnter: PropTypes.func.isRequired,
-  onMouseExit: PropTypes.func.isRequired,
-  onSelectFwd: PropTypes.func.isRequired,
-  onSelectBack: PropTypes.func.isRequired,
-  navCategory: PropTypes.string.isRequired,
-  selectedItem: PropTypes.string, //need to create HOC for this
-  selectedData: PropTypes.object, //nedd to create validation HOC
-  searchData: PropTypes.object.isRequired,
-  showDropdown: PropTypes.bool.isRequired,
-};
-
 //All the state and methods live here and are passed down as props to all the specific components.
 class IconSelector extends React.PureComponent {
-  static propTypes = {
-    records: PropTypes.array.isRequired,
-    searchData: PropTypes.object.isRequired,
-  };
-
   state = {
     navCategory: "general_category",
     selectedItem: null,
