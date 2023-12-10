@@ -4,7 +4,8 @@ import os
 import json
 from airtable import Airtable
 import pandas
-from geopy.geocoders import GoogleV3
+#from geopy.geocoders import GoogleV3
+from geopy.geocoders import Nominatim
 import re
 from pathlib import Path
 from dotenv import load_dotenv
@@ -12,13 +13,15 @@ from dotenv import load_dotenv
 dotenv_path = Path('../backend/.env')
 load_dotenv(dotenv_path=dotenv_path)
 
-GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
+# GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 
-if GOOGLE_API_KEY == None or GOOGLE_API_KEY == '':
-    print('The Google API key is missing')
-    sys.exit(10)
+# if GOOGLE_API_KEY == None or GOOGLE_API_KEY == '':
+#     print('The Google API key is missing')
+#     sys.exit(10)
 
-geolocator = GoogleV3(api_key=os.environ.get('GOOGLE_API_KEY'))
+#geolocator = GoogleV3(api_key=os.environ.get('GOOGLE_API_KEY'))
+# https://operations.osmfoundation.org/policies/nominatim/
+geolocator = Nominatim(user_agent="rose-city-resource")
 
 AIRTABLE_API_KEY = os.environ.get('AIRTABLE_API_KEY')
 AIRTABLE_BASE_ID = os.environ.get('AIRTABLE_BASE_ID')
@@ -72,17 +75,18 @@ def create_import_table(table_name, json_data):
     new_columns = []
     for column in columns:
         new_columns.append(str(column).replace(
-            "fields.", "").replace(" ", "_").replace("-", ""))
+            "fields.", "").replace(" ", "_").replace("-", "").replace("(", "").replace(")", "").replace(".", "_").lower())
     data.columns = new_columns
 
     # Drop and Create the table
     sql = f"DROP TABLE IF EXISTS {table_name}; "
-    sql += f"CREATE TABLE {table_name} ("
+    sql += f"CREATE TABLE IF NOT EXISTS {table_name} ("
     for name in data.columns:
-        sql += f"{name} TEXT"
+        sql += f"\"{name}\" TEXT"
         if name != list(data.columns)[-1]:
             sql += ','
     sql += "); "
+
     cursor.execute(sql)
     db.commit()
 
@@ -174,17 +178,28 @@ for row in rows:
     _address = str(row[i_full_address])
     if _address == None or _address == '' or len(_address) <= 0 or _address == 'None':
         continue
+
     # Skip empty street addresses which should NOT have lat or lon
     _street = str(row[i_street_address])
     if _street == None or _street == '' or len(_street) <= 0 or _street == 'None':
         continue
+
+    # Skip rows without valid ids
     _id = str(row[i_id])
     if _id == None or _id == '':
         continue
 
+    # Continue if there is a pre-existing lat and lon
+    # This allows for manual overrides
+    if row[i_lat] != None and row[i_lat] != '' and row[i_lon] != None and row[i_lon] != '':
+        continue
+
     address = _address
 
-    location = geolocator.geocode(address)
+    try:
+        location = geolocator.geocode(address)
+    except:
+        location = None
     lat = ''
     lon = ''
 

@@ -1,6 +1,6 @@
 import { findDistance, inOutLocation } from "./distance";
 
-let _datatableVersion = "";
+let _previewMode = false;
 
 // ASYNC DATA UTLS--------------------------------------------------------
 
@@ -64,8 +64,13 @@ export async function addUserDistancesToRecords(records) {
 
 /* Download records by fetching JSON from the appropriate API route */
 export async function getRecords() {
+  if (getQueryStringParameterValue("preview") === "true") {
+    _previewMode = true;
+    console.info('Preview mode enabled.')
+  }
+
   const uri =
-    getQueryStringParameterValue("datatable") === "staging"
+    _previewMode
       ? "/api/query-staging"
       : "/api/query";
 
@@ -85,8 +90,6 @@ export async function getRecords() {
     }
 
     const recorsWithNullDistance = addNullDistanceToRecords(records);
-
-    _datatableVersion = uri === "/api/query-staging" ? "staging" : "production";
 
     return recorsWithNullDistance;
   } catch (err) {
@@ -464,8 +467,8 @@ export function getQueryStringParameterValue(paramName) {
   return params.get(paramName);
 }
 
-export function getDatatableVersion() {
-  return _datatableVersion;
+export function isPreviewMode() {
+  return _previewMode;
 }
 
 //function to generate query

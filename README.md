@@ -48,3 +48,5 @@ npm run dev
 ### M1 Macs
 
 The new architecture on the M1 macs creates some issues with project dependencies and such. Make sure to install **node/npm** using a Rosetta-translated terminal as per [this guide](https://dev.to/courier/tips-and-tricks-to-setup-your-apple-m1-for-development-547g). After that, your `npm installs` and scripts *should* run just fine.
+
+Alternatively, run `arch -x86_64 $SHELL` in a terminal shell once prior to `npm install` and/or `npm run dev`

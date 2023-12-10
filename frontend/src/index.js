@@ -3,8 +3,11 @@ import { render } from 'react-dom'; // eslint-disable-line react/no-deprecated
 import WebFont from 'webfontloader';
 import App from './components/App';
 import './css/main.css';
-import 'leaflet/dist/leaflet.css'; //regular leaflet
-import 'leaflet-control-geocoder/dist/Control.Geocoder.css'; //geocoder
+import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet.markercluster/dist/leaflet.markercluster.js';
+import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
 
 // annoying hack to deal with webpack and marker icon
 import L from 'leaflet';
@@ -24,3 +27,7 @@ WebFont.load({
 });
 
 render(<App />, document.getElementById('app'));
+
+// const container = document.createElement('app');
+// const root = createRoot(container); // createRoot(container!) if you use TypeScript
+// root.render(<App />);

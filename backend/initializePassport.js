@@ -1,5 +1,5 @@
-const LocalStrategy = require("passport-local").Strategy;
-const bcrypt = require("bcrypt");
+import { Strategy as LocalStrategy } from "passport-local";
+import bcrypt from "bcrypt";
 
 async function initialize(passport, pool) {
 
@@ -73,4 +73,4 @@ async function initialize(passport, pool) {
   });
 }
 
-module.exports = initialize;
+export default initialize;

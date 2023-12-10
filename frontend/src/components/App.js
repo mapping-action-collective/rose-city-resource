@@ -8,7 +8,7 @@ import Details from "./Details";
 import Nav from "./Nav";
 import Footer from "./static_components/Footer";
 import Banner from './Banner'
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import {
   getRecords,
   addUserDistancesToRecords,
@@ -16,7 +16,7 @@ import {
   getCategorySearchData,
   getMainSearchData,
   dateString,
-  getDatatableVersion,
+  isPreviewMode,
 } from "../utils/api";
 import "../icons/iconsInit";
 import sanitizeHtml from 'sanitize-html'
@@ -34,12 +34,12 @@ class App extends React.PureComponent {
 
     /* Attempt to convert an old RCR link to the new hash format */
     /* This is a convenience for the user to be able to use old links */
-    const location = window.location;
-    const url = location.href;
-    if (!/#/.test(url)) {
-      const newLocation = '/#' + location.pathname + location.search;
-      window.location = newLocation;
-    }
+    // const location = window.location;
+    // const url = location.href;
+    // if (!/#/.test(url)) {
+    //   const newLocation = '/#' + location.pathname + location.search;
+    //   window.location = newLocation;
+    // }
   }
 
   //state lisfted from
@@ -104,6 +104,7 @@ class App extends React.PureComponent {
 
   componentDidMount = async () => {
     const meta = await getMetaInformation();
+
     if (meta) {
       const cleanHtml = sanitizeHtml(meta.site_banner_content, {
         allowedTags: [
@@ -147,10 +148,10 @@ class App extends React.PureComponent {
         {!records ? (
           <Loading />
         ) : (
-          <Router>
+          <BrowserRouter>
             <div>
               <div className="main-content">
-                {getDatatableVersion() === "staging" ? (
+                {isPreviewMode() === true ? (
                   <div>
                     <center>
                       This site is using preview data. To view production data,
@@ -223,7 +224,7 @@ class App extends React.PureComponent {
               </div>
               <Footer revisionDate={this.revisionDate} />
             </div>
-          </Router>
+          </BrowserRouter>
         )}
       </React.Fragment>
     );
