@@ -1,4 +1,5 @@
 import { findDistance, inOutLocation } from "./distance";
+import config from '../config.json';
 
 let _previewMode = false;
 
@@ -263,7 +264,7 @@ export function cardWebAddressFixer(webAddress) {
 
 //function to build the map data object
 export function mapDataBuilder(records) {
-  const defaultCenter = [45.52345, -122.6762];
+  const defaultCenter = config.map.default.center;
 
   if (
     records === null ||

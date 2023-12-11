@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link, useNavigate } from "react-router-dom";
-// import LinkButton from "./LinkButton";
+import { Link, useSearchParams } from "react-router-dom";
 import '../../css/Home.css';
 import { getFilteredSearchList, queryBuilder } from "../../utils/api";
 
@@ -195,10 +194,9 @@ const AdvancedSearchModal = (props) => {
 
 export const SearchBar = (props) => {
   const [searchValue, setSearchValue] = useState("");
-//  const [filterSearchList, setFilterSearchList] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams()
   const [showAdvSearchModal, setShowAdvSearchModal] = useState(false);
   const { records, searchData, match } = props;
-  const navigate = useNavigate();
 
   function handleChange(e) {
     const value = e.target.value;
@@ -207,7 +205,9 @@ export const SearchBar = (props) => {
 
   function handleKeyPress (e) {
     if (e.key == 'Enter') {
-        navigate(`/results?search=${searchValue}`)
+      searchParams.set('search', searchValue);
+      setSearchParams(searchParams)
+      e.preventDefault();
     }
   }
 
@@ -242,7 +242,7 @@ export const SearchBar = (props) => {
           autoComplete="off"
           value={searchValue} // Setting `value` makes <input> a controlled element
           onChange={handleChange}
-          onKeyUp={handleKeyPress}
+          onKeyDown={handleKeyPress}
           list="data"
         />
         {/* loop through the list of options */}

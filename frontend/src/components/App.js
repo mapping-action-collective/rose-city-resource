@@ -32,14 +32,14 @@ class App extends React.PureComponent {
       metaInformation: {}
     };
 
-    /* Attempt to convert an old RCR link to the new hash format */
+    /* Attempt to convert an old RCR link from when HashRouter was in use */
     /* This is a convenience for the user to be able to use old links */
-    // const location = window.location;
-    // const url = location.href;
-    // if (!/#/.test(url)) {
-    //   const newLocation = '/#' + location.pathname + location.search;
-    //   window.location = newLocation;
-    // }
+    const location = window.location;
+    const url = location.href;
+    if (/#/.test(url)) {
+      const newLocation = location.hash.substring(1);
+      window.location = newLocation;
+    }
   }
 
   //state lisfted from

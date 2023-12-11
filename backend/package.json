@@ -4,8 +4,7 @@
   "description": "A digital version of the Street Roots Rose City Resource",
   "main": "index.js",
   "engines": {
-    "node": "20.10.0",
-    "npm": "10.2.3"
+    "node": "20.x"
   },
   "type": "module",
   "scripts": {

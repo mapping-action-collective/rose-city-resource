@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ScrollToTop from "react-scroll-up";
 import { Tooltip } from "react-tooltip";
 import MediaQuery from "react-responsive";
@@ -39,350 +39,329 @@ const style = {
   boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.5)",
 };
 
-class Card extends React.PureComponent {
-  state = {
-    selector: "location",
+const Card = ({
+  record,
+  selectedListing,
+  updateListing,
+  //handleCardClick,
+  handleCardSave,
+  savedDataId,
+  showMapDetail,
+  addCardRef
+}) => {
+  const cardRef = useRef();
+
+  useEffect(() => {
+    if (cardRef) {
+      addCardRef(cardRef, record.id);
+    }
+  }, [cardRef]); /* eslint-disable-line react-hooks/exhaustive-deps */
+
+  const textMap = {
+    parsedCategory: record.main_category,
+    parsedListing: record.listing,
+    parsedPhone: cardPhoneTextFilter(record),
+    parsedWeb: cardWebAddressFixer(record.website),
+    parsedStreet: record.street !== null && record.street !== '' ? `${cardTextFilter(record.street)} ${cardTextFilter(
+      record.street2
+    )}`.trim() : '',
+    parsedCity: `${record.city}, OR ${record.postal_code}`,
+    parsedDescription: cardTextFilter(record.service_description),
+    parsedHours: cardTextFilter(record.hours),
+    parsedCOVID: cardTextFilter(record.covid_message),
   };
 
-  cardRef = React.createRef();
-
-  componentDidMount() {
-    const { record } = this.props;
-    this.props.handleCardRef(this.cardRef, record.id);
-  }
-
-  render() {
-    const {
-      record,
-      selectedListing,
-      updateListing,
-      handleCardClick,
-      handleCardSave,
-      savedDataId,
-      showMapDetail,
-    } = this.props;
-
-    const textMap = {
-      parsedCategory: record.main_category,
-      parsedListing: record.listing,
-      parsedPhone: cardPhoneTextFilter(record),
-      parsedWeb: cardWebAddressFixer(record.website),
-      parsedStreet: record.street !== null && record.street !== '' ? `${cardTextFilter(record.street)} ${cardTextFilter(
-        record.street2
-      )}`.trim() : '',
-      parsedCity: `${record.city}, OR ${record.postal_code}`,
-      parsedDescription: cardTextFilter(record.service_description),
-      parsedHours: cardTextFilter(record.hours),
-      parsedCOVID: cardTextFilter(record.covid_message),
-    };
-
-    return (
-      <div className="card-map-container">
-        <div
-          ref={this.cardRef}
-          className="card-container"
-          style={record.id === selectedListing ? style : null}
-        >
-          <div className="card-header">
-            <div className="card-category">{textMap.parsedCategory}</div>
-            {textMap.parsedCOVID === "CLOSED DUE TO COVID" ? (
-              <div className="covid-item">{textMap.parsedCOVID}</div>
-            ) : null}
+  return (
+    <div className="card-map-container">
+      <div
+        ref={cardRef}
+        className="card-container"
+        style={record.id === selectedListing ? style : null}
+      >
+        <div className="card-header">
+          <div className="card-category">{textMap.parsedCategory}</div>
+          {textMap.parsedCOVID === "CLOSED DUE TO COVID" ? (
+            <div className="covid-item">{textMap.parsedCOVID}</div>
+          ) : null}
+        </div>
+        <div className="card-header">
+          <div
+            className="card-listing"
+            style={
+              selectedListing === record.id
+                ? {
+                  color: "#27a727",
+                  fontWeight: "bolder",
+                }
+                : null
+            }
+          >
+            {textMap.parsedListing}
           </div>
-          <div className="card-header">
-            <div
-              className="card-listing"
-              style={
-                selectedListing === record.id
-                  ? {
-                    color: "#27a727",
-                    fontWeight: "bolder",
-                  }
-                  : null
-              }
+          <div className="spacer" />
+          {record.lat !== "" || record.lon !== "" ? (
+            <button
+              className="card-save-button"
+              data-tip="Show on map."
+              data-for="show-listing-tooltip"
+              onClick={() => {
+                //handleCardClick(cardRef, record.id);
+                updateListing?.(record.id, "card"); // Cards on the Details page don't receive this prop
+              }}
             >
-              {textMap.parsedListing}
-            </div>
-            <div className="spacer" />
-            {record.lat !== "" || record.lon !== "" ? (
+              <FontAwesomeIcon
+                icon="map-marker"
+                size="sm"
+                style={
+                  selectedListing === record.id ? { color: "#27a727" } : null
+                }
+              />
+              Show
+              <Tooltip
+                id="show-listing-tooltip"
+                place="top"
+                type="dark"
+                effect="solid"
+              />
+            </button>
+          ) : null}
+          {!showMapDetail ? (
+            <MediaQuery query="(min-width: 993px)">
               <button
                 className="card-save-button"
-                data-tip="Show on map."
-                data-for="show-listing-tooltip"
-                onClick={() => {
-                  handleCardClick(this.cardRef, record.id);
-                  updateListing?.(record.id, "card"); // Cards on the Details page don't receive this prop
-                }}
+                data-tip="Save listing, print later."
+                data-for="save-tooltip"
+                onClick={() => handleCardSave(record.id)}
               >
                 <FontAwesomeIcon
-                  icon="map-marker"
+                  icon="save"
                   size="sm"
                   style={
-                    selectedListing === record.id ? { color: "#27a727" } : null
+                    savedDataId.indexOf(record.id) > -1
+                      ? { color: "green" }
+                      : null
                   }
                 />
-                Show
+                Save
                 <Tooltip
-                  id="show-listing-tooltip"
+                  id="save-tooltip"
                   place="top"
                   type="dark"
                   effect="solid"
                 />
               </button>
-            ) : null}
-            {!showMapDetail ? (
-              <MediaQuery query="(min-width: 993px)">
-                <button
-                  className="card-save-button"
-                  data-tip="Save listing, print later."
-                  data-for="save-tooltip"
-                  onClick={() => handleCardSave(record.id)}
-                >
-                  <FontAwesomeIcon
-                    icon="save"
-                    size="sm"
-                    style={
-                      savedDataId.indexOf(record.id) > -1
-                        ? { color: "green" }
-                        : null
-                    }
-                  />
-                  Save
-                  <Tooltip
-                    id="save-tooltip"
-                    place="top"
-                    type="dark"
-                    effect="solid"
-                  />
-                </button>
-              </MediaQuery>
-            ) : null}
-          </div>
-          <div className="card-street">
-            {textMap.parsedStreet != null && textMap.parsedStreet !== '' ? (
-              <div>
-                {textMap.parsedStreet} <br />
-                {textMap.parsedCity} <br />
-                {/* if the distance is not null then return it in the card */}
-                {record.distance !== null ? (
-                  <div className="card-distance">
-                    <FontAwesomeIcon
-                      className="card-map-marker"
-                      icon="map-marker"
-                      size="sm"
-                    />
-                    {`${Number(record.distance.toFixed(2))} miles`}
-                    <br />
-                  </div>
-                ) : null}
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={"//www.google.com/maps/dir/" + record.directionsUrl}
-                >
-                  Get Directions
-                </a>
-              </div>
-            ) : (
-                <div className="card-undisclosed">Undisclosed Location</div>
-              )}
-          </div>
-          <div className="covid-item covid-temp-listing">
-            {textMap.parsedCOVID === "TEMPORARY COVID RESPONSE SERVICE"
-              ? textMap.parsedCOVID
-              : null}
-          </div>
-          <div className="card-phone-container">
-            {textMap.parsedPhone ? (
-              <div>
-                <FontAwesomeIcon icon={"phone"} className="phone-icon" />
-                {textMap.parsedPhone.map((phone, index) => {
-                  return (
-                    <div key={`${phone.phone}-${index}`} className="card-phone">
-                      <span>{`${phone.type}: `}</span>
-                      {phone.phone}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : null}
-          </div>
-          <div className="card-web-container">
-            {textMap.parsedWeb ? (
-              <div>
-                <FontAwesomeIcon icon={"globe"} />
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={textMap.parsedWeb}
-                >
-                  {" website"}
-                </a>
-              </div>
-            ) : null}
-          </div>
-          {!(textMap.parsedDescription === "") ? (
-            <div className="card-item">
-              <div className="card-title">Service Description:</div>
-              <div className="card-content">{textMap.parsedDescription}</div>
-            </div>
+            </MediaQuery>
           ) : null}
-          {!(textMap.parsedHours === "") ? (
-            <div className="card-item">
-              <div className="card-title-flex">
-                <div>Hours:</div>
-                <div className="covid-item">
-                  {textMap.parsedCOVID === "HOURS CHANGED DUE TO COVID"
-                    ? textMap.parsedCOVID
-                    : null}
+        </div>
+        <div className="card-street">
+          {textMap.parsedStreet != null && textMap.parsedStreet !== '' ? (
+            <div>
+              {textMap.parsedStreet} <br />
+              {textMap.parsedCity} <br />
+              {/* if the distance is not null then return it in the card */}
+              {record.distance !== null ? (
+                <div className="card-distance">
+                  <FontAwesomeIcon
+                    className="card-map-marker"
+                    icon="map-marker"
+                    size="sm"
+                  />
+                  {`${Number(record.distance.toFixed(2))} miles`}
+                  <br />
                 </div>
-              </div>
-              <div className="card-content">
-                {textMap.parsedCOVID === "CLOSED DUE TO COVID" ? (
-                  <div className="covid-item">CLOSED</div>
-                ) : (
-                    textMap.parsedHours
-                  )}
-              </div>
+              ) : null}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href={"//www.google.com/maps/dir/" + record.directionsUrl}
+              >
+                Get Directions
+              </a>
+            </div>
+          ) : (
+              <div className="card-undisclosed">Undisclosed Location</div>
+            )}
+        </div>
+        <div className="covid-item covid-temp-listing">
+          {textMap.parsedCOVID === "TEMPORARY COVID RESPONSE SERVICE"
+            ? textMap.parsedCOVID
+            : null}
+        </div>
+        <div className="card-phone-container">
+          {textMap.parsedPhone ? (
+            <div>
+              <FontAwesomeIcon icon={"phone"} className="phone-icon" />
+              {textMap.parsedPhone.map((phone, index) => {
+                return (
+                  <div key={`${phone.phone}-${index}`} className="card-phone">
+                    <span>{`${phone.type}: `}</span>
+                    {phone.phone}
+                  </div>
+                );
+              })}
             </div>
           ) : null}
         </div>
-        {showMapDetail ? (
-          <div className="map-details-container">
-            {record.lat !== "" ? (
-              <DetailMap coords={[Number(record.lat), Number(record.lon)]} />
-            ) : null}
+        <div className="card-web-container">
+          {textMap.parsedWeb ? (
+            <div>
+              <FontAwesomeIcon icon={"globe"} />
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href={textMap.parsedWeb}
+              >
+                {" website"}
+              </a>
+            </div>
+          ) : null}
+        </div>
+        {!(textMap.parsedDescription === "") ? (
+          <div className="card-item">
+            <div className="card-title">Service Description:</div>
+            <div className="card-content">{textMap.parsedDescription}</div>
+          </div>
+        ) : null}
+        {!(textMap.parsedHours === "") ? (
+          <div className="card-item">
+            <div className="card-title-flex">
+              <div>Hours:</div>
+              <div className="covid-item">
+                {textMap.parsedCOVID === "HOURS CHANGED DUE TO COVID"
+                  ? textMap.parsedCOVID
+                  : null}
+              </div>
+            </div>
+            <div className="card-content">
+              {textMap.parsedCOVID === "CLOSED DUE TO COVID" ? (
+                <div className="covid-item">CLOSED</div>
+              ) : (
+                  textMap.parsedHours
+                )}
+            </div>
           </div>
         ) : null}
       </div>
-    );
-  }
+      {showMapDetail ? (
+        <div className="map-details-container">
+          {record.lat !== "" ? (
+            <DetailMap coords={[Number(record.lat), Number(record.lon)]} />
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
-class Cards extends React.PureComponent {
-  state = { currentCardRef: null, cardRefs: [] };
+const Cards = ({
+  data,
+  selectedListing,
+  updateListing,
+  handleCardSave,
+  savedDataId,
+  showMapDetail,
+  clickType
+}) => {
+  const [cardRefs, setCardRefs] = useState([]);
 
-  cardScrollToCard = (cardRef) => {
-    //the card is on the first element of the
-    //the cardRef array
-    window.scrollTo({
-      top: cardRef[0][0].offsetTop - 60,
-      behavior: "smooth",
-    });
-  };
-
-  handleCardRef = (ref, id) => {
-    //build up the state array without directly mutating state
-    this.setState((prevState) => ({
-      cardRefs: [...prevState.cardRefs, [ref.current, id]],
-    }));
-  };
-
-  handleCardClick = (cardRef, id) => {
-    this.setState(() => ({ currentCardRef: [cardRef.current, id] }));
-  };
-
-  undisclosedCounter = (data) => {
-    let counter = 0;
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].street === "") {
-        counter += 1;
+  const cardScrollToCard = (cardRef) => {
+    if (Array.isArray(cardRef) && cardRef.length > 0) {
+      const entry = cardRef.find(entry => entry[0]?.current !== null);
+      if (Array.isArray(entry) && entry.length > 0) {
+        const card = entry[0]?.current;
+        if (card) {
+          window.scrollTo({ top: card.offsetTop - 60, behavior: "smooth" });
+        }
       }
     }
-    return counter;
   };
 
-  componentDidUpdate(prevProps) {
-    const { cardRefs } = this.state;
-    const { selectedListing, clickType } = this.props;
+  const addCardRef = (ref, id) => {
+    if (!cardRefs.some(item => item[0][1] === id)) {
+      const refList = cardRefs
+      refList.push([ref, id])
+      setCardRefs([...cardRefs, [ref.current, id]]);
+    }
+  };
 
+  useEffect(() => {
     const currentCard = cardRefs.filter((ref) => ref[1] === selectedListing);
-    if (this.props.selectedListing !== prevProps.selectedListing) {
-      if (
-        window.matchMedia("(max-width: 992px)").matches &&
-        clickType === "popup"
-      ) {
-        this.cardScrollToCard(currentCard);
-      }
-      if (
-        window.matchMedia("(max-width: 992px)").matches &&
-        clickType === "card"
-      ) {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-      if (window.matchMedia("(min-width: 993px)").matches) {
-        this.cardScrollToCard(currentCard);
-      }
+
+    if (
+      window.matchMedia("(max-width: 992px)").matches &&
+      clickType === "popup"
+    ) {
+      cardScrollToCard(currentCard);
     }
-  }
 
-  render() {
-    const {
-      data,
-      selectedListing,
-      updateListing,
-      handleCardSave,
-      savedDataId,
-      showMapDetail,
-    } = this.props;
+    if (
+      window.matchMedia("(max-width: 992px)").matches &&
+      clickType === "card"
+    ) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
-    return (
-      // the cards container should scroll on its own
-      <div className="cards-container">
-        <CountBar savedDataId={savedDataId} data={data} />
+    if (window.matchMedia("(min-width: 993px)").matches) {
+      cardScrollToCard(currentCard);
+    }
+  }, [selectedListing, cardRefs]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
-        {cardSortByDistance(data).map((record, index) => (
-          <Card
-            key={`${record.id}-${index}`}
-            record={record}
-            selectedListing={selectedListing}
-            updateListing={updateListing}
-            handleCardSave={handleCardSave}
-            handleCardClick={this.handleCardClick}
-            handleCardRef={this.handleCardRef}
-            savedDataId={savedDataId}
-            showMapDetail={showMapDetail}
-          />
-        ))}
-        <MediaQuery query="(max-width: 992px)">
-          <ScrollToTop showUnder={160} style={{
-            position: 'fixed',
-            bottom: 50,
-            left: 320,
-            cursor: 'pointer',
-            transitionDuration: '0.2s',
-            transitionTimingFunction: 'linear',
-            transitionDelay: '0s',
-            fontSize: '60px',
-            color: 'gray'
-          }}>
-            <FontAwesomeIcon
-              icon={faAnglesUp}
-              size="lg"
-            />
-          </ScrollToTop>
-        </MediaQuery>
-        <MediaQuery query="(min-width: 993px)">
+  return (
+    // the cards container should scroll on its own
+    <div className="cards-container">
+      <CountBar savedDataId={savedDataId} data={data} />
+
+      {cardSortByDistance(data).map((record, index) => (
+        <Card
+          key={`${record.id}-${index}`}
+          record={record}
+          selectedListing={selectedListing}
+          updateListing={updateListing}
+          handleCardSave={handleCardSave}
+          //handleCardClick={handleCardClick}
+          addCardRef={addCardRef}
+          savedDataId={savedDataId}
+          showMapDetail={showMapDetail}
+        />
+      ))}
+      <MediaQuery query="(max-width: 992px)">
         <ScrollToTop showUnder={160} style={{
-            position: 'fixed',
-            bottom: 50,
-            left: 220,
-            cursor: 'pointer',
-            transitionDuration: '0.2s',
-            transitionTimingFunction: 'linear',
-            transitionDelay: '0s',
-            fontSize: '50px',
-            color: 'gray'
-          }}>
-            <FontAwesomeIcon
-              icon={faAnglesUp}
-              size="lg"
-            />
-          </ScrollToTop>
-        </MediaQuery>
-      </div>
-    );
-  }
+          position: 'fixed',
+          bottom: 50,
+          left: 320,
+          cursor: 'pointer',
+          transitionDuration: '0.2s',
+          transitionTimingFunction: 'linear',
+          transitionDelay: '0s',
+          fontSize: '60px',
+          color: 'gray'
+        }}>
+          <FontAwesomeIcon
+            icon={faAnglesUp}
+            size="lg"
+          />
+        </ScrollToTop>
+      </MediaQuery>
+      <MediaQuery query="(min-width: 993px)">
+      <ScrollToTop showUnder={160} style={{
+          position: 'fixed',
+          bottom: 50,
+          left: 220,
+          cursor: 'pointer',
+          transitionDuration: '0.2s',
+          transitionTimingFunction: 'linear',
+          transitionDelay: '0s',
+          fontSize: '50px',
+          color: 'gray'
+        }}>
+          <FontAwesomeIcon
+            icon={faAnglesUp}
+            size="lg"
+          />
+        </ScrollToTop>
+      </MediaQuery>
+    </div>
+  );
 }
 
 export default Cards;
