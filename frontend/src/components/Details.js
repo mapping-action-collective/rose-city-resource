@@ -25,7 +25,7 @@ const Details = (props) => {
         return Object.assign(record, { directionsUrl });
       })
     );
-  }, [props.records]);
+  }, [props.records]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { savedDataId, handleCardSave } = props;
 

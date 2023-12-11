@@ -78,6 +78,7 @@ testDatabaseQuery();
 
 /* Default handler for requests not handled by one of the above routes */
 if (process.env.NODE_ENV === "production") {
+  const __dirname = path.dirname(__filename);
   const frontEndPath = path.join(__dirname, "/../frontend/build");
   const staticOptions = {
     etag: true,
