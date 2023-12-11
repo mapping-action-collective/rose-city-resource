@@ -10,6 +10,8 @@ import queryStagingRoutes from './routes/query-staging.js';
 import metaInformationRoutes from './routes/meta-information.js';
 import adminRoutes from './routes/admin.js';
 import postgres from "pg";
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
 
 dotenv.config();
 keys.DATABASE_URL = process.env.DATABASE_URL;
@@ -78,7 +80,8 @@ testDatabaseQuery();
 
 /* Default handler for requests not handled by one of the above routes */
 if (process.env.NODE_ENV === "production") {
-  const __dirname = path.dirname(__filename);
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = dirname(__filename)
   const frontEndPath = path.join(__dirname, "/../frontend/build");
   const staticOptions = {
     etag: true,
