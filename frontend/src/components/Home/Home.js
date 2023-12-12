@@ -1,10 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+//import React from 'react';
 import IconSelector from './IconSelector';
-import SearchBar from './SearchBar';
+import { SearchBar } from './SearchBar';
 import '../../css/Home.css';
 
-const BasicInstructions = props => {
+const BasicInstructions = () => {
   return (
     <div className="basic-instructions">
       Find reduced cost or free services in Multnomah, Washington and Clackamas
@@ -40,10 +39,5 @@ const Home = props => {
     </section>
   );
 }
-
-
-Home.propTypes = {
-  records: PropTypes.array.isRequired
-};
 
 export default Home;

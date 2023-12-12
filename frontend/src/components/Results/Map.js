@@ -1,229 +1,187 @@
-import React from "react";
-import { Map, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import L from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
 import Geocoder from "./Geocoder";
-import MarkerClusterGroup from "react-leaflet-markercluster";
+import { MarkerClusterGroup } from './MarkerClusterGroup.js';
 import MediaQuery from "react-responsive";
 import { mapDataBuilder } from "../../utils/api";
 import { greenLMarker, blueLMarker } from "../../icons/mapIcons.js";
+import config from "../../config.json";
 
-class Markers extends React.PureComponent {
-  markers = [];
+function LocationMarker(props) {
+  const { map } = props;
+  const [position, setPosition] = useState(null);
 
-  bindMarker = (ref) => {
-    if (ref) {
-      const marker = ref.leafletElement;
-      this.markers.push(marker);
-    }
-  };
+  useEffect(() => {
+    map?.locate().on("locationfound", function (e) {
+      setPosition(e.latlng);
+      const radius = e.accuracy;
+      const circle = L.circle(e.latlng, radius);
+      circle.addTo(map);
+    });
+  }, [map]);
 
-  render() {
-    const { mapData, updateListing, selectedListing } = this.props;
-
-    return (
-      <React.Fragment>
-        <MarkerClusterGroup showCoverageOnHover={false}>
-          {mapData.map((item, index) => {
-            return (
-              <Marker
-                key={`${item.popup.id}-${index}`}
-                ref={this.bindMarker}
-                position={item.coords}
-                id={item.popup.id}
-                icon={
-                  selectedListing === item.popup.id ? greenLMarker : blueLMarker
-                }
-              >
-                <Popup>
-                  <div className="popup-container">
-                    <div>{item.popup.listing}</div>
-                    <div>{`${item.popup.street} ${item.popup.street2}`}</div>
-                    <div
-                      className="popup-show-details"
-                      onClick={() => {
-                        updateListing(item.popup.id, "popup");
-                      }}
-                    >
-                      Show Details
-                    </div>
-                  </div>
-                </Popup>
-                <MediaQuery query="(min-width: 993px)">
-                  <Tooltip>
-                    <div className="popup-tooltip">
-                      <div>{item.popup.listing}</div>
-                    </div>
-                  </Tooltip>
-                </MediaQuery>
-              </Marker>
-            );
-          })}
-        </MarkerClusterGroup>
-      </React.Fragment>
-    );
-  }
+  return position === null ? null : (
+    <Marker position={position}>
+      <Popup>You are here</Popup>
+      <MediaQuery query="(min-width: 993px)">
+        <Tooltip>
+          <div className="popup-tooltip">
+            <div>You are here</div>
+          </div>
+        </Tooltip>
+      </MediaQuery>
+    </Marker>
+  );
 }
 
-class SimpleMap extends React.PureComponent {
-  state = {
-    mapData: null,
-    zoom: 10,
-    bounds: [],
-    center: [45.52345, -122.6762],
-    currentLocation: null,
-    hasCurrentLocation: false,
-    geocodeLocation: null,
+const SimpleMap = (props) => {
+  const { updateListing, selectedListing, data } = props;
+
+  const [isLargeScreenSize, setIsLargeScreenSize] = useState(
+    window.matchMedia("(min-width: 993px)")?.matches ?? false
+  )
+
+  useEffect(() => {
+    window
+    .matchMedia("(min-width: 993px)")
+    .addEventListener('change', e => setIsLargeScreenSize( e.matches ));
+  }, []);
+
+  const [viewport, setViewport] = useState({ zoom: 10, center: [45.52345, -122.6762] });
+  const [mapData, setMapData] = useState(null);
+  const [bounds, setBounds] = useState(null);
+  const [leafletMap, setLeafletMap] = useState(null);
+  const previousMapData = useRef(null);
+
+  const handleGeocode = (e) => {
+    const coords = [e.lat, e.lng]
+    setViewport(setViewport({ zoom: viewport.zoom, center: coords}));
   };
 
-  handleMapData = (data) => {
-    const { leafletElement: leafletMap } = this.leafletMap;
+  const cachedData = useMemo(() => {
+    return mapDataBuilder(data);
+  }, [data]);
 
-    //create mapData and bounds
-    const { mapData, center } = mapDataBuilder(data);
-    this.setState(() => ({ mapData }));
+  /* Update the map when map data changes */
+  useEffect(() => {
+    if (cachedData) {
+      const { mapData: _mapData, center } = cachedData;
+      let zoom = config.map.default.zoom;
 
-    let bounds = [];
-    if (mapData) {
-      bounds = mapData.map((item) => item.coords);
+      let boundList = [];
+      if (_mapData) {
+        boundList = _mapData.map((item) => item.coords);
+      }
+
+      previousMapData.current = mapData;
+      setMapData(_mapData);
+
+      /* Set bounds and center */
+      if (boundList.length > 0) {
+          if (selectedListing) {
+            if (_mapData.length > 0) {
+              if (leafletMap) leafletMap.fitBounds(boundList);
+            }
+          }
+          else {
+            if (leafletMap) leafletMap.fitBounds(boundList);
+          }
+
+          setBounds(boundList);
+          
+          if (leafletMap) zoom = leafletMap.getBoundsZoom(boundList) - 1;
+      }
+      
+      setViewport({ zoom, center });
     }
+  }, [cachedData]) /* eslint-disable-line react-hooks/exhaustive-deps */
 
-    //if there are bounds, set them and the center
-    if (bounds.length > 0) {
-      const zoom = leafletMap.getBoundsZoom(bounds) - 1;
-      this.setState(() => ({ bounds, zoom, center }));
-    }
-  };
+  /* React to items on the map being selected (or set programmatically elsewhere) */
+  useEffect(() => {
+    if (leafletMap) {
+      const selectedItem = data.filter(item => item.id === selectedListing);
+      if (Array.isArray(selectedItem)) {
+        const lat = selectedItem[0]?.lat ?? 0
+        const lon = selectedItem[0]?.lon ?? 0
+        if (lat && lon) {
+          const selectedCoords = [
+            Number(lat),
+            Number(lon),
+          ];
+          leafletMap.flyTo(selectedCoords, 17);
+        }
+      }
+    }  
+  }, [selectedListing]) /* eslint-disable-line react-hooks/exhaustive-deps */
 
-  //for whatever reason the leaflet element is firing as null
-  //here so this needs to be modified to handle null cases
-  handleViewportChanged = () => {
-    const { leafletElement: leafletMap } = this.leafletMap;
-    const zoom = leafletMap.getZoom();
-    this.setState(() => ({ zoom }));
-  };
-
-  handleLocationFound = (e) => {
-    this.setState(() => ({
-      hasCurrentLocation: true,
-      currentLocation: [e.latlng.lat, e.latlng.lng],
-    }));
-  };
-
-  handleGeocode = (e) => {
-    this.setState(() => ({ geocodeLocation: [e.lat, e.lng] }));
-  };
-
-  componentDidMount() {
-    const { data } = this.props;
-    this.handleMapData(data);
-  }
-
-  componentDidUpdate(prevProps) {
-    const { data, selectedListing } = this.props;
-    const leafletMap = this.leafletMap.leafletElement;
-
-    if (this.props.data !== prevProps.data) {
-      this.handleMapData(data);
-    }
-
-    if (this.props.selectedListing !== prevProps.selectedListing) {
-      const selectedItem = data.filter(
-        (record) => record.id === selectedListing
-      );
-      const selectedCoords = [
-        Number(selectedItem[0].lat),
-        Number(selectedItem[0].lon),
-      ];
-      leafletMap.flyTo(selectedCoords, 17);
-    }
-  }
-
-  render() {
-    const { updateListing, selectedListing } = this.props;
-    const { bounds, zoom, center, mapData } = this.state;
-
-    if (bounds.length > 0) {
-      return (
-        <React.Fragment>
-          <MediaQuery query="(min-width: 993px)">
-            <Map
-              ref={(map) => (this.leafletMap = map)}
-              center={center}
-              zoom={zoom}
-              minZoom={8}
-              maxZoom={18} //set to 18 since the mapdisappears beyond that.
-              scrollWheelZoom={true}
-              tap={true}
-              dragging={true}
-              touchZoom={true}
-            >
-              <TileLayer
-                attribution=""
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-              />
-              <Markers
-                mapData={mapData}
-                updateListing={updateListing}
-                selectedListing={selectedListing}
-              />
-              <Geocoder
-                collapsed={false}
-                placeholder={"Search address..."}
-                handleGeocode={this.handleGeocode}
-              />
-            </Map>
-          </MediaQuery>
-
-          <MediaQuery query="(max-width: 992px)">
-            <Map
-              ref={(map) => (this.leafletMap = map)}
-              center={center}
-              zoom={zoom}
-              minZoom={8}
-              maxZoom={18} //set to 18 since the mapdisappears beyond that.
-              scrollWheelZoom={false}
-              tap={false}
-              dragging={false}
-              touchZoom={true}
-            >
-              <TileLayer
-                attribution=""
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-              />
-              <Markers
-                mapData={mapData}
-                updateListing={updateListing}
-                selectedListing={selectedListing}
-              />
-              <Geocoder
-                placeholder={"Search address..."}
-                handleGeocode={this.handleGeocode}
-              />
-            </Map>
-          </MediaQuery>
-        </React.Fragment>
-      );
-    }
-    return (
-      <Map
-        ref={(map) => (this.leafletMap = map)}
-        center={center}
-        zoom={zoom}
-        minZoom={8}
+  return (
+    <React.Fragment>
+      <MapContainer
+        center={viewport?.center ?? config.map.default.center}
+        zoom={viewport?.zoom ?? config.map.default.zoom}
+        minZoom={7}
         maxZoom={18} //set to 18 since the mapdisappears beyond that.
-        scrollWheelZoom={false}
-        tap={false}
-        dragging={false}
+        scrollWheelZoom={isLargeScreenSize}
+        tap={isLargeScreenSize}
+        dragging={isLargeScreenSize}
         touchZoom={true}
-        onViewportChanged={this.handleViewportChanged}
+        bounds={bounds}
+        boundsOptions={{
+          padding: [
+            isLargeScreenSize ? 50 : 20,
+            isLargeScreenSize ? 50 : 20
+          ]
+        }}
+        ref={setLeafletMap}
+        viewPort={viewport}
       >
-        <TileLayer
-          attribution=""
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        <TileLayer attribution = '' url='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png' />
+          <MarkerClusterGroup showCoverageOnHover={false}>
+            {mapData?.map((item, index) => {
+              return (
+                <Marker
+                  key={`${item.popup.id}-${index}`}
+                  position={item.coords}
+                  id={item.popup.id}
+                  icon={
+                    selectedListing === item.popup.id ? greenLMarker : blueLMarker
+                  }
+                >
+                  <Popup>
+                    <div className="popup-container">
+                      <div>{item.popup.listing}</div>
+                      <div>{`${item.popup.street} ${item.popup.street2}`}</div>
+                      <div
+                        className="popup-show-details"
+                        onClick={() => {
+                          updateListing?.(item.popup.id, "popup");
+                        }}
+                      >
+                        Show Details
+                      </div>
+                    </div>
+                  </Popup>
+                  { isLargeScreenSize
+                    ? <Tooltip>
+                        <div className="popup-tooltip">
+                          <div>{item.popup.listing}</div>
+                        </div>
+                      </Tooltip>
+                    : null 
+                  }
+                </Marker>
+              );
+            })}
+          </MarkerClusterGroup>
+        <Geocoder
+          placeholder={"Search address..."}
+          handleGeocode={handleGeocode}
         />
-        <Geocoder handleGeocode={this.handleGeocode} />
-      </Map>
-    );
-  }
+        <LocationMarker map={leafletMap}/>
+      </MapContainer>
+    </React.Fragment>
+  );
 }
 
 export default SimpleMap;

@@ -1,17 +1,19 @@
-const keys = require("../../config/nodeKeys");
-const { spawn } = require('child_process');
-const passport = require("passport");
-const flash = require("express-flash");
-const session = require("express-session");
-const path = require('path');
-const bcrypt = require('bcrypt');
-var sanitizeHtml = require('sanitize-html');
+import keys from "../../config/nodeKeys.js";
+import { spawn } from 'child_process';
+import passport from "passport";
+import flash from "express-flash";
+import session from "express-session";
+import path from 'path';
+import bcrypt from 'bcrypt';
+import sanitizeHtml from 'sanitize-html';
+import initializePassport from "../initializePassport.js";
 
-module.exports = (app, pool) => {
+export default  (app, pool) => {
 
   /* Configure Passport, the login mechanism for the admin page */
-  const initializePassport = require("../initializePassport");
+
   initializePassport(passport, pool);
+  
   app.use(
     session({
       secret: 'secret',
@@ -19,12 +21,14 @@ module.exports = (app, pool) => {
       saveUninitialized: false
     })
   );
+  
   app.use(passport.initialize());
   app.use(passport.session());
   app.use(flash());
-  app.use(function (req, res, next) {
+  
+  app.use((req, res, next) => {
     res.locals.error = req.flash("error");
-    res.locals.success = req.flash("success")
+    res.locals.success = req.flash("success");
     next();
   });
 
@@ -34,7 +38,6 @@ module.exports = (app, pool) => {
   /* Default handler for the admin page */
   app.get(["/admin", "/admin/dashboard"], userIsAuthenticated, async (req, res, next) => {
     try {
-
       const { action } = req.query;
 
       if (action === 'runetl') {
@@ -85,7 +88,7 @@ module.exports = (app, pool) => {
   });
 
   /* API method to pull logs from the public.etl_run_log table */
-  app.get("/admin/dashboard/etl-log", async (req, res, next) => {
+  app.get("/admin/dashboard/etl-log", userIsAuthenticated, async (req, res, next) => {
     try {
 
       let log = null;
@@ -107,7 +110,7 @@ module.exports = (app, pool) => {
   });
 
   /* API method to get the status of the ETL job */
-  app.get("/admin/dashboard/etl-status", async (req, res, next) => {
+  app.get("/admin/dashboard/etl-status", userIsAuthenticated, async (req, res, next) => {
     try {
 
       let log = null;
@@ -118,7 +121,8 @@ module.exports = (app, pool) => {
           res.sendStatus(500);
           return;
         }
-        log = result.rows;
+        const rows = result.rows;
+        log = Array.isArray(rows) && rows.length > 0 ? rows[0] : {};
         res.setHeader('Cache-Control', 'no-cache');
         res.json(log);
       });
@@ -129,8 +133,9 @@ module.exports = (app, pool) => {
   });
 
   /* API method to get the ETL data validation results */
-  app.get("/admin/dashboard/etl-validation", async (req, res, next) => {
+  app.get("/admin/dashboard/etl-validation", userIsAuthenticated, async (req, res, next) => {
     try {
+      
       let data = null;
       await pool.query('SELECT * FROM etl_validate_staging_table();', async (err, result) => {
         if (err) {
@@ -149,7 +154,7 @@ module.exports = (app, pool) => {
   });
 
   /* API method to get database rows in use */
-  app.get("/admin/dashboard/pg-rows", async (req, res, next) => {
+  app.get("/admin/dashboard/pg-rows", userIsAuthenticated, async (req, res, next) => {
     try {
 
       let log = null;
@@ -171,7 +176,7 @@ module.exports = (app, pool) => {
   });
 
   /* API method to get database space in use */
-  app.get("/admin/dashboard/pg-space", async (req, res, next) => {
+  app.get("/admin/dashboard/pg-space", userIsAuthenticated, async (req, res, next) => {
     try {
 
       let log = null;
@@ -223,8 +228,7 @@ module.exports = (app, pool) => {
         enforceHtmlBoundary: false
       });
 
-      await pool.query('SELECT set_site_banner($1, $2);',
-        [cleanContent, isEnabled === true]);
+      await pool.query(`SELECT set_site_banner('${cleanContent}', ${Boolean(isEnabled)});`);
       const successString = 'Created'
       res.setHeader('Cache-Control', 'no-cache');
       res.json(JSON.stringify(successString))
@@ -334,9 +338,11 @@ module.exports = (app, pool) => {
 
   /* Logout */
   app.get("/admin/logout", (req, res) => {
-    req.logout();
-    res.setHeader('Cache-Control', 'no-cache');
-    res.render("../../admin/views/login.ejs", { message: "You have logged out successfully" });
+    req.logout(function(err) {
+      if (err) { return next(err); }
+      res.setHeader('Cache-Control', 'no-cache');
+      res.render("../../admin/views/login.ejs", { message: "You have logged out successfully" });
+    });
   });
 
   /* Handle input from the login form */
@@ -368,7 +374,7 @@ module.exports = (app, pool) => {
 
   //this is for the "Create User" route, which should be accesible by logged-in Admin users only
   function userIsAdmin(req, res, next) {
-    if (req.isAuthenticated() && req.user.role === "admin") {
+    if (req.isAuthenticated()) {
       return next();
     }
     res.setHeader('Cache-Control', 'no-cache');

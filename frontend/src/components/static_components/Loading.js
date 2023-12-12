@@ -1,6 +1,5 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import PropTypes from 'prop-types';
 
 const styles = {
   content: {
@@ -14,11 +13,6 @@ const styles = {
 //this component was updated to include
 //the babel transform class properties
 class Loading extends React.PureComponent {
-  static propTypes = {
-    text: PropTypes.string.isRequired,
-    speed: PropTypes.number.isRequired
-  };
-
   //this is where we add default props
   static defaultProps = {
     text: 'Loading',

@@ -8,7 +8,7 @@ import Details from "./Details";
 import Nav from "./Nav";
 import Footer from "./static_components/Footer";
 import Banner from './Banner'
-import { HashRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import {
   getRecords,
   addUserDistancesToRecords,
@@ -16,7 +16,7 @@ import {
   getCategorySearchData,
   getMainSearchData,
   dateString,
-  getDatatableVersion,
+  isPreviewMode,
 } from "../utils/api";
 import "../icons/iconsInit";
 import sanitizeHtml from 'sanitize-html'
@@ -32,12 +32,12 @@ class App extends React.PureComponent {
       metaInformation: {}
     };
 
-    /* Attempt to convert an old RCR link to the new hash format */
+    /* Attempt to convert an old RCR link from when HashRouter was in use */
     /* This is a convenience for the user to be able to use old links */
     const location = window.location;
     const url = location.href;
-    if (!/#/.test(url)) {
-      const newLocation = '/#' + location.pathname + location.search;
+    if (/#/.test(url)) {
+      const newLocation = location.hash.substring(1);
       window.location = newLocation;
     }
   }
@@ -104,6 +104,7 @@ class App extends React.PureComponent {
 
   componentDidMount = async () => {
     const meta = await getMetaInformation();
+
     if (meta) {
       const cleanHtml = sanitizeHtml(meta.site_banner_content, {
         allowedTags: [
@@ -147,10 +148,10 @@ class App extends React.PureComponent {
         {!records ? (
           <Loading />
         ) : (
-          <Router>
+          <BrowserRouter>
             <div>
               <div className="main-content">
-                {getDatatableVersion() === "staging" ? (
+                {isPreviewMode() === true ? (
                   <div>
                     <center>
                       This site is using preview data. To view production data,
@@ -170,63 +171,60 @@ class App extends React.PureComponent {
                   : <React.Fragment />
                 }
                 <Nav />
-                <Switch>
+                <Routes>
                   <Route
                     exact
                     path="/"
-                    component={(props) => (
+                    element={
                       <Home
-                        {...props}
                         records={records}
                         searchData={searchData}
                       />
-                    )}
+                    }
                   />
-                  <Route exact path="/about" component={About} />
-                  <Route exact path="/suggest-edit" component={SuggestEdit} />
+                  <Route exact path="/about" element={<About />} />
+                  <Route exact path="/suggest-edit" element={<SuggestEdit />} />
                   <Route
                     path="/results"
-                    component={(props) => (
+                    element={
                       <Results
-                        {...props}
                         records={records}
                         searchData={searchData}
                         handleCardSave={this.handleCardSave}
                         handleSaveDelete={this.handleSaveDelete}
                         savedDataId={savedDataId}
                       />
-                    )}
+                    }
                   />
                   <Route
                     exact
                     path="/details"
-                    component={(props) => (
+                    element={
                       <Details
-                        {...props}
                         records={records}
                         handleCardSave={this.handleCardSave}
                         savedDataId={savedDataId}
                       />
-                    )}
+                    }
                   />
                   <Route
                     path="/admin"
-                    render={props => {
+                    render={() => {
                       window.location.href = [
                         window.location.protocol,
                         "//",
-                        window.location.host.replace(/\d+/, "5000"),
+                        window.location.host.replace(/\d+/, "5900"),
                         "/admin/dashboard",
                       ].join("");
                     }}
                   />
                   {/* for all other routes */}
                   <Route render={() => <p>Not Found</p>} />
-                </Switch>
+                </Routes>
               </div>
               <Footer revisionDate={this.revisionDate} />
             </div>
-          </Router>
+          </BrowserRouter>
         )}
       </React.Fragment>
     );

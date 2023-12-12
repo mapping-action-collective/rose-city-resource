@@ -1,11 +1,22 @@
-require('dotenv').config();
-const keys = require("../config/nodeKeys");
-const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
-const compression = require("compression");
-const path = require("path");
-const { Pool } = require('pg');
+import dotenv from 'dotenv';
+import keys from '../config/nodeKeys.js';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import path from 'path';
+import queryRoutes from './routes/query.js';
+import queryStagingRoutes from './routes/query-staging.js';
+import metaInformationRoutes from './routes/meta-information.js';
+import adminRoutes from './routes/admin.js';
+import postgres from "pg";
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+
+dotenv.config();
+keys.DATABASE_URL = process.env.DATABASE_URL;
+const { Pool } = postgres;
+
 const app = express();
 app.disable('x-powered-by');
 
@@ -13,7 +24,7 @@ app.disable('x-powered-by');
 const isProdEnvironment = process.env.NODE_ENV === "production";
 const isDevEnvironment = process.env.NODE_ENV === undefined || process.env.NODE_ENV !== "production";
 
-/* Heroku free postgres allows up to 20 concurrent connections */
+/* Our Heroku postgres plan allows up to 20 concurrent connections */
 const pool = new Pool({
   connectionString: keys.DATABASE_URL,
   max: 20,
@@ -49,10 +60,10 @@ app.use(function(req, res, next) {
 });
 
 /* Routes */
-require("./routes/query")(app, pool);
-require("./routes/query-staging")(app, pool);
-require("./routes/meta-information")(app, pool);
-require("./routes/admin")(app, pool);
+queryRoutes(app, pool);
+queryStagingRoutes(app, pool);
+metaInformationRoutes(app, pool);
+adminRoutes(app, pool);
 
 /* Check for database connectivity and provide a human-friendly message on failure */
 const testDatabaseQuery = () => {
@@ -69,6 +80,8 @@ testDatabaseQuery();
 
 /* Default handler for requests not handled by one of the above routes */
 if (process.env.NODE_ENV === "production") {
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = dirname(__filename)
   const frontEndPath = path.join(__dirname, "/../frontend/build");
   const staticOptions = {
     etag: true,
@@ -84,5 +97,5 @@ if (process.env.NODE_ENV === "production") {
   app.use("*", express.static(frontEndPath, staticOptions))
 }
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5900;
 app.listen(PORT);

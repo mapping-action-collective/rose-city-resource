@@ -1,4 +1,4 @@
-module.exports = (app, pool) => {
+export default  (app, pool) => {
   app.get("/api/query-staging", async (req, res, next) => {
     try {
 

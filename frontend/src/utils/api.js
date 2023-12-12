@@ -1,6 +1,7 @@
 import { findDistance, inOutLocation } from "./distance";
+import config from '../config.json';
 
-let _datatableVersion = "";
+let _previewMode = false;
 
 // ASYNC DATA UTLS--------------------------------------------------------
 
@@ -13,7 +14,7 @@ export async function getMetaInformation() {
       handleError();
     })
     .then((r) => {
-      if (r.ok) {
+      if (r?.ok) {
         return r.json().catch((e) => {
           console.error(e);
         });
@@ -32,7 +33,6 @@ export async function addUserDistancesToRecords(records) {
   try {
     let currentCoords;
     const position = await inOutLocation();
-    //console.log('POSITION',position)
     if (position !== undefined && position !== null) {
       currentCoords = [position.coords.latitude, position.coords.longitude];
     } else {
@@ -65,8 +65,13 @@ export async function addUserDistancesToRecords(records) {
 
 /* Download records by fetching JSON from the appropriate API route */
 export async function getRecords() {
+  if (getQueryStringParameterValue("preview") === "true") {
+    _previewMode = true;
+    console.info('Preview mode enabled.')
+  }
+
   const uri =
-    getQueryStringParameterValue("datatable") === "staging"
+    _previewMode
       ? "/api/query-staging"
       : "/api/query";
 
@@ -86,8 +91,6 @@ export async function getRecords() {
     }
 
     const recorsWithNullDistance = addNullDistanceToRecords(records);
-
-    _datatableVersion = uri === "/api/query-staging" ? "staging" : "production";
 
     return recorsWithNullDistance;
   } catch (err) {
@@ -127,6 +130,7 @@ export function getFilteredRecords(
 ) {
   //if the searchVal is undefined then
   //do this
+
   if (searchVals === undefined) {
     const filteredrecords = getFilteredCatParentData(
       categoryVals,
@@ -199,14 +203,14 @@ export function getMainSearchData(records) {
     "Specialized Assistance",
   ];
 
-  const mainCats = genCats.map((cat, i) => {
+  const mainCats = genCats.map((cat) => {
     const filterCats = records.filter(
       (record) => record.general_category === cat
     );
     return filterCats;
   });
 
-  const mainCatsCount = mainCats.map((cat, i) => {
+  const mainCatsCount = mainCats.map((cat) => {
     const catVals = cat.map((c) => {
       return c["main_category"];
     });
@@ -230,7 +234,7 @@ export function cardPhoneTextFilter(record) {
   const split = rawphone.split(",");
   if (split != null && split.length && split.length > 0) {
     return split.map((number) => {
-      if (number.includes(":")) {
+      if (number?.includes(":")) {
         return {
           type: number.split(":")[0],
           phone: number.split(":")[1],
@@ -260,7 +264,7 @@ export function cardWebAddressFixer(webAddress) {
 
 //function to build the map data object
 export function mapDataBuilder(records) {
-  const defaultCenter = [45.52345, -122.6762];
+  const defaultCenter = config.map.default.center;
 
   if (
     records === null ||
@@ -308,7 +312,7 @@ export function cardDetailsFilter(records, savedIds) {
   }
 
   const filteredDetailsData = records.filter((r) =>
-    savedIds.includes(r.id.toString())
+    savedIds?.includes(r.id.toString())
   );
 
   return filteredDetailsData;
@@ -351,8 +355,8 @@ function getFilteredCatParentData(categoryVals, parentVals, records) {
     ...handleArray(categoryVals),
     ...handleArray(parentVals),
   ].filter((el) => el !== null);
-
-  return records.filter((record) => {
+  const filteredRecords = []
+  records.forEach((record) => {
     //create another array to see if checkVals are in
     //the nodeVals
     const nodeVals = [
@@ -369,11 +373,10 @@ function getFilteredCatParentData(categoryVals, parentVals, records) {
         record.city,
         record.postal_code
       );
-      return record;
-    } else {
-      return null;
+      filteredRecords.push(record)
     }
-  });
+  })
+  return filteredRecords;
 }
 
 //check if a search value is in the NODE record
@@ -388,12 +391,13 @@ function getFilteredSearchData(searchValue, records) {
   ) {
     return null;
   }
-  //Polyfill from SO to use toLowerCase()
-  if (!String.toLowerCase) {
-    String.toLowerCase = function (s) {
-      return String(s).toLowerCase();
-    };
-  }
+  // I don't think we need this any more
+  // //Polyfill from SO to use toLowerCase()
+  // if (!String.toLowerCase) {
+  //   String.toLowerCase = function (s) {
+  //     return String(s).toLowerCase();
+  //   };
+  // }
 
   const filterData = records.map((record) => {
     const recordValsLower = Object.values(record).map(
@@ -401,7 +405,13 @@ function getFilteredSearchData(searchValue, records) {
         return String(val).toLowerCase();
       } //I miss R
     );
-    if (recordValsLower.join(" ").includes(String(searchValue).toLowerCase())) {
+
+    // Text search was quite slow, so a Set helps a bit
+    // We should use some type of fuzzy matching to enhance this
+    const recordSet = new Set(recordValsLower);
+    const searchValueLower = String(searchValue).toLowerCase();
+
+    if (recordSet.has(searchValueLower)) {
       record.directionsUrl = directionsUrlBuilder(
         record.street,
         record.city,
@@ -458,8 +468,8 @@ export function getQueryStringParameterValue(paramName) {
   return params.get(paramName);
 }
 
-export function getDatatableVersion() {
-  return _datatableVersion;
+export function isPreviewMode() {
+  return _previewMode;
 }
 
 //function to generate query

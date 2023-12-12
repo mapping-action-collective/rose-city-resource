@@ -1,4 +1,4 @@
-module.exports = (app, pool) => {
+export default  (app, pool) => {
   app.get("/api/meta-information", async (req, res, next) => {
     try {
 
