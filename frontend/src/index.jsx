@@ -13,11 +13,13 @@ import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
 import L from 'leaflet';
 delete L.Icon.Default.prototype._getIconUrl;
 
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
-});
+(async function () {
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: await import('leaflet/dist/images/marker-icon-2x.png'),
+    iconUrl: await import('leaflet/dist/images/marker-icon.png'),
+    shadowUrl: await import('leaflet/dist/images/marker-shadow.png')
+  });
+})();
 
 // load google fonts
 WebFont.load({
@@ -26,8 +28,8 @@ WebFont.load({
   }
 });
 
-render(<App />, document.getElementById('app'));
+render(<App />, document.getElementById('root'));
 
-// const container = document.createElement('app');
+// const container = document.createElement('root');
 // const root = createRoot(container); // createRoot(container!) if you use TypeScript
 // root.render(<App />);

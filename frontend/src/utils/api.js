@@ -40,7 +40,7 @@ export async function addUserDistancesToRecords(records) {
     }
 
     // Calculate the distance between the user's location and the geolocation of each listing and add to the listing
-    for (let i = 0; i < records.length; i++) {
+    for (let i = 0; i < records?.length; i++) {
       if (records[i].lat === "" || records[i].lon === "") {
         records[i].distance = null;
         continue;
@@ -78,6 +78,7 @@ export async function getRecords() {
   try {
     const queryResponse = await fetch(uri);
     const records = await queryResponse.json();
+
     if (!queryResponse.ok) {
       console.error("Server error: " + queryResponse.statusText);
     }

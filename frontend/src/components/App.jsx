@@ -19,7 +19,7 @@ import {
   isPreviewMode,
 } from "../utils/api";
 import "../icons/iconsInit";
-import sanitizeHtml from 'sanitize-html'
+import sanitizeHtml from 'sanitize-html-react'
 
 class App extends React.PureComponent {
   constructor(props) {
@@ -131,6 +131,7 @@ class App extends React.PureComponent {
         allowProtocolRelative: true,
         enforceHtmlBoundary: false
       });
+
       this.bannerContent = cleanHtml;
       this.bannerEnabled = meta.site_banner_enabled
       this.revisionDate = dateString(meta.last_update);

@@ -1,28 +1,38 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import L from 'leaflet';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
-import Geocoder from "./Geocoder";
-import { MarkerClusterGroup } from './MarkerClusterGroup.js';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMapEvents } from "react-leaflet";
+import Geocoder from "./Geocoder.jsx";
+import { MarkerClusterGroup } from './MarkerClusterGroup.jsx';
 import MediaQuery from "react-responsive";
-import { mapDataBuilder } from "../../utils/api";
-import { greenLMarker, blueLMarker } from "../../icons/mapIcons.js";
+import { mapDataBuilder } from "../../utils/api.js";
+import { greenLMarker, blueLMarker, redLMarker } from "../../icons/mapIcons.js";
 import config from "../../config.json";
 
-function LocationMarker(props) {
-  const { map } = props;
+function LocationMarker() {
   const [position, setPosition] = useState(null);
 
-  useEffect(() => {
-    map?.locate().on("locationfound", function (e) {
+  const map = useMapEvents({
+    locationfound(e) {
       setPosition(e.latlng);
       const radius = e.accuracy;
       const circle = L.circle(e.latlng, radius);
       circle.addTo(map);
-    });
+    },
+  });
+
+  useEffect(() => {
+    if (map) {
+      map.locate();
+    }
   }, [map]);
 
   return position === null ? null : (
-    <Marker position={position}>
+    <Marker
+      position={position}
+      key={'locationmarker'}
+      id={'locationmarker'}
+      icon={redLMarker}
+    >
       <Popup>You are here</Popup>
       <MediaQuery query="(min-width: 993px)">
         <Tooltip>
@@ -136,6 +146,7 @@ const SimpleMap = (props) => {
         ref={setLeafletMap}
         viewPort={viewport}
       >
+        <LocationMarker />
         <TileLayer attribution = '' url='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png' />
           <MarkerClusterGroup showCoverageOnHover={false}>
             {mapData?.map((item, index) => {
@@ -178,7 +189,6 @@ const SimpleMap = (props) => {
           placeholder={"Search address..."}
           handleGeocode={handleGeocode}
         />
-        <LocationMarker map={leafletMap}/>
       </MapContainer>
     </React.Fragment>
   );
