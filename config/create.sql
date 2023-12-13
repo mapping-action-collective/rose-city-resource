@@ -171,4 +171,5 @@ CREATE FUNCTION change_password(in _email character varying (128), in _password 
   WHERE email = _email;
 ' LANGUAGE sql;
 
+/* Now that we're using Nominatim, we can consider caching the geocodes */
 CREATE TABLE geocodes (street TEXT, city TEXT, postal_code TEXT, lat TEXT, lon TEXT)

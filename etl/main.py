@@ -13,15 +13,10 @@ from dotenv import load_dotenv
 dotenv_path = Path('../backend/.env')
 load_dotenv(dotenv_path=dotenv_path)
 
-# GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
-
-# if GOOGLE_API_KEY == None or GOOGLE_API_KEY == '':
-#     print('The Google API key is missing')
-#     sys.exit(10)
-
-#geolocator = GoogleV3(api_key=os.environ.get('GOOGLE_API_KEY'))
 # https://operations.osmfoundation.org/policies/nominatim/
 geolocator = Nominatim(user_agent="rose-city-resource")
+
+MAX_RECORDS = 9999
 
 AIRTABLE_API_KEY = os.environ.get('AIRTABLE_API_KEY')
 AIRTABLE_BASE_ID = os.environ.get('AIRTABLE_BASE_ID')
@@ -80,7 +75,7 @@ def create_import_table(table_name, json_data):
 
     # Drop and Create the table
     sql = f"DROP TABLE IF EXISTS {table_name}; "
-    sql += f"CREATE TABLE IF NOT EXISTS {table_name} ("
+    sql += f"CREATE TABLE {table_name} ("
     for name in data.columns:
         sql += f"\"{name}\" TEXT"
         if name != list(data.columns)[-1]:
@@ -115,21 +110,22 @@ log("Python ETL Script Start")
 
 log("Import the listings airtable")
 listings_airtable = Airtable(AIRTABLE_BASE_ID, 'listings', AIRTABLE_API_KEY)
-listings = listings_airtable.get_all()
+listings = listings_airtable.get_all(maxRecords=MAX_RECORDS)
+
 create_import_table('etl_import_1', listings)
 del listings_airtable
 del listings
 
 log("Import the phone airtable")
 phone_airtable = Airtable(AIRTABLE_BASE_ID, 'phone', AIRTABLE_API_KEY)
-phone = phone_airtable.get_all()
+phone = phone_airtable.get_all(maxRecords=MAX_RECORDS)
 create_import_table('etl_import_2', phone)
 del phone_airtable
 del phone
 
 log("Import the address airtable")
 address_airtable = Airtable(AIRTABLE_BASE_ID, 'address', AIRTABLE_API_KEY)
-address = address_airtable.get_all()
+address = address_airtable.get_all(maxRecords=MAX_RECORDS)
 create_import_table('etl_import_3', address)
 del address_airtable
 del address
@@ -137,7 +133,7 @@ del address
 log("Import the contacts airtable")
 contacts_airtable = Airtable(
     AIRTABLE_BASE_ID, 'contacts', AIRTABLE_API_KEY)
-contacts = contacts_airtable.get_all()
+contacts = contacts_airtable.get_all(maxRecords=MAX_RECORDS)
 create_import_table('etl_import_4', contacts)
 del contacts_airtable
 del contacts
@@ -145,7 +141,7 @@ del contacts
 log("Import the parent_organization airtable")
 parent_airtable = Airtable(
     AIRTABLE_BASE_ID, 'parent_organization', AIRTABLE_API_KEY)
-parent = parent_airtable.get_all()
+parent = parent_airtable.get_all(maxRecords=MAX_RECORDS)
 create_import_table('etl_import_5', parent)
 del parent_airtable
 del parent
