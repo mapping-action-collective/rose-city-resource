@@ -87,10 +87,12 @@ if (process.env.NODE_ENV === "production") {
     etag: true,
     lastModified: true,
     setHeaders: (res, path) => {
-      if (path.endsWith('.html'))
-        res.setHeader('Cache-Control', 'no-cache'); /* ALWAYS re-validate HTML files! */
-      else
+      if (path.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache'); /* ALWAYS re-validate HTML files */
+      }
+      else {
         res.header('Cache-Control', `max-age=31536000`); /* Aggressively cache other static content */
+      }
     }
   }
   app.use(express.static(frontEndPath, staticOptions))

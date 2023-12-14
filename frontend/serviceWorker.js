@@ -5,7 +5,7 @@ async function read (key, store) {
     const value = await cache.match(key);
 
     return {
-      responseObject: value,
+      responseObject: value.clone(), // Clone is necessary as the response is a stream and can only be read once
       status: 'OK',
       toJson: async () => {
         return await value.clone().json();
@@ -17,7 +17,7 @@ async function read (key, store) {
 
     return {
       responseObject: null,
-      status: 'failure'
+      status: 'FAIL'
     }
   }
 };
@@ -36,7 +36,7 @@ async function acquire (request) {
     const response = await fetch(request);
 
     return {
-      responseObject: response,
+      responseObject: response.clone(), // Clone is necessary as the response is a stream and can only be read once
       status: response.statusText,
       toJson: async () => {
         return await response.clone().json();
@@ -48,7 +48,7 @@ async function acquire (request) {
 
     return {
       responseObject: null,
-      status: 'failure'
+      status: 'FAIL'
     }
   }
 };
@@ -57,7 +57,7 @@ async function acquire (request) {
 async function clear (store) {
   const status = await caches.delete(store);
   return {
-    status: status ? 'OK': 'failure'
+    status: status ? 'OK': 'FAIL'
   }
 }
   
