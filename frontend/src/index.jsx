@@ -2,6 +2,7 @@ import React from 'react';
 import { render } from 'react-dom'; // eslint-disable-line react/no-deprecated
 import WebFont from 'webfontloader';
 import App from './components/App';
+import { register } from "register-service-worker";
 import './css/main.css';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -33,3 +34,6 @@ render(<App />, document.getElementById('root'));
 // const container = document.createElement('root');
 // const root = createRoot(container); // createRoot(container!) if you use TypeScript
 // root.render(<App />);
+
+
+register(`/serviceWorker.js`)

@@ -1,5 +1,7 @@
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
+import { join } from "node:path";
+import { buildSync } from "esbuild";
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -39,7 +41,19 @@ export default defineConfig({
     react(),
     svgr({
       include: '**/*.svg?react',
-    })
+    }),
+    {
+      apply: "build",
+      enforce: "post",
+      transformIndexHtml() {
+        buildSync({
+          minify: true,
+          bundle: true,
+          entryPoints: [join(process.cwd(), "serviceWorker.js")],
+          outfile: join(process.cwd(), "dist", "serviceWorker.js"),
+        });
+      },
+    },
   ],
 
   test: {
