@@ -263,7 +263,7 @@ const Cards = ({
   clickType
 }) => {
   const [cardRefs, setCardRefs] = useState([]);
-
+console.log('SHOW MAP DETAIL', showMapDetail)
   const cardScrollToCard = (cardRef) => {
     if (Array.isArray(cardRef) && cardRef.length > 0) {
       const entry = cardRef.find(entry => entry[0]?.current !== null);
