@@ -35,5 +35,7 @@ render(<App />, document.getElementById('root'));
 // const root = createRoot(container); // createRoot(container!) if you use TypeScript
 // root.render(<App />);
 
-
-register(`/serviceWorker.js`)
+/* Use a service worker to cache /api/query, if the ServiceWorker API is available */
+if ('serviceWorker' in navigator) {
+  register(`/serviceWorker.js`)
+}

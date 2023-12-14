@@ -1,42 +1,106 @@
-  const putInCache = async (request, response) => {
-    const cache = await caches.open("rose-city-resource");
-    await cache.put(request, response);
-  };
+/* Read a value from the cache */
+async function read (key, store) {
+  try {
+    const cache = await caches.open(store);
+    const value = await cache.match(key);
+
+    return {
+      responseObject: value,
+      status: 'OK',
+      toJson: async () => {
+        return await value.clone().json();
+      }
+    }
+  }
+  catch (error) {
+    console.error(error);
+
+    return {
+      responseObject: null,
+      status: 'failure'
+    }
+  }
+};
+
+/* Write a value to the cache */
+async function write (key, value, store) {
+  if (value.clone === 'function') {
+    const cache = await caches.open(store);
+    await cache.put(key, value.clone());
+  }
+};
+
+/* Make a network request */
+async function acquire (request) {
+  try {
+    const response = await fetch(request);
+
+    return {
+      responseObject: response,
+      status: response.statusText,
+      toJson: async () => {
+        return await response.clone().json();
+      }
+    }
+  }
+  catch (error) {
+    console.error(error);
+
+    return {
+      responseObject: null,
+      status: 'failure'
+    }
+  }
+};
+
+/* Clear the cache */
+async function clear (store) {
+  const status = await caches.delete(store);
+  return {
+    status: status ? 'OK': 'failure'
+  }
+}
   
-  const cacheFirst = async (request) => {
-    const responseFromCache = await caches.match(request);
-    if (responseFromCache) {
-      return responseFromCache;
-    }
-    const responseFromNetwork = await fetch(request);
-    putInCache(request, responseFromNetwork.clone());
-    return responseFromNetwork;
-  };
-  
-  self.addEventListener("fetch", async (event) => {
-    if (event.request.url.endsWith("/api/meta-information")) {
-        const metaInformationResponseFromNetwork = await fetch(event.request);
-        if (metaInformationResponseFromNetwork) {
-            const metaInformationFromNetwork = await metaInformationResponseFromNetwork.clone().json();
-            const dateOfLastDataUpdateFromNetwork = metaInformationFromNetwork.last_update;
+self.addEventListener("fetch", async (event) => {
+  if (event.request.url.endsWith("/api/meta-information")) {
+      const metaInfoFromNetwork = await acquire(event.request);
 
-            const metaInformationCachedResponse = await caches.match('meta-information');
-            if (metaInformationCachedResponse) {
-                const metaInformationCached = await metaInformationCachedResponse.clone().json();
-                const dateOfLastDataUpdateCached = metaInformationCached.last_update;
+      if (metaInfoFromNetwork.status === 'OK') {
+          const metaInfoNetworkObj = await metaInfoFromNetwork.toJson();
+          const updateDateFromNetwork = metaInfoNetworkObj.last_update;
 
-                if (dateOfLastDataUpdateCached !== dateOfLastDataUpdateFromNetwork) {
-                    caches.delete('rose-city-resource');
-                    console.info('Cached data updated to the version published on ', dateOfLastDataUpdateFromNetwork)
-                }
-            }
-        }
+          const metaInfoFromCache = await read('meta-information', 'rose-city-resource');
+          if (metaInfoFromCache.status === 'OK') {
+              const metaInfoCacheObj = await metaInfoFromCache.toJson();
+              const updateDateFromCache = metaInfoCacheObj.last_update;
 
-        const cache = await caches.open("rose-city-resource");
-        await cache.put("meta-information", metaInformationResponseFromNetwork);
-    }
+              if (updateDateFromCache !== updateDateFromNetwork) {
+                  if (clear('rose-city-resource') === 'OK') {
+                    console.info('Cached data updated to the version published on ', updateDateFromNetwork)
+                  }
+              }
+          }
+      }
 
-    if (event.request.url.endsWith("/api/query")) {
-        event.respondWith(cacheFirst(event.request));
-    }
-  });
+      write('meta-information', metaInfoFromNetwork.responseObject, 'rose-city-resource');
+  }
+
+  else if (event.request.url.endsWith("/api/query")) {
+    event.respondWith(
+      cacheFirstStrategy(event.request)
+    );
+  }
+});
+
+/* Use a cached response if available; otherwise, make a network request */
+async function cacheFirstStrategy (request) {
+  const responseFromCache = await read(request, 'rose-city-resource');
+  if (responseFromCache.status === 'OK') {
+    return responseFromCache.responseObject;
+  }
+  const responseFromNetwork = await acquire(request);
+  if (responseFromNetwork.status !== 'OK') {
+    write(request, responseFromNetwork.responseObject, 'rose-city-resource');
+    return responseFromNetwork.responseObject;
+  }
+};

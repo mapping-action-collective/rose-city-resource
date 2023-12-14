@@ -25,11 +25,11 @@ export default defineConfig({
         ws: true,
         rewrite: (path) => path.replace(/^\/app/, '')
       }
-  },
-  '/socket.io': {
-    target: 'ws://localhost:3000',
-    ws: true,
-  }
+    },
+    '/socket.io': {
+      target: 'ws://localhost:3000',
+      ws: true,
+    }
   },
 
   preview: {

@@ -61,6 +61,7 @@ class App extends React.PureComponent {
   handleSaveDelete = () => {
     this.setState(() => ({ savedDataId: [] }));
   };
+  
   // build the searching data
   filterData = (records) => {
     const generalCategories = getCategorySearchData(
