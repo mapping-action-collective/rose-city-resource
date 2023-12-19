@@ -2,17 +2,17 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useSearchParams } from "react-router-dom";
-import '../../css/Home.css';
+import "../../css/Home.css";
 import { getFilteredSearchList, queryBuilder } from "../../utils/api";
 
 //need this to use the react portal
 const modalRoot = document.getElementById("modal-root");
 
 const AdvancedSearchModal = (props) => {
-  const { searchData, onClose } = props
-  const [categoryVals, setCategoryVals] = useState([])
-  const [parentVals, setParentVals] = useState([])
-  const [selection, setSelection] = useState('Category')
+  const { searchData, onClose } = props;
+  const [categoryVals, setCategoryVals] = useState([]);
+  const [parentVals, setParentVals] = useState([]);
+  const [selection, setSelection] = useState("Category");
 
   // this needs to be refratored a bit to be more DRY
   function toggleCheckedValue(val, selection) {
@@ -37,26 +37,26 @@ const AdvancedSearchModal = (props) => {
         setParentVals(parentVals);
       }
     }
-  };
+  }
 
   function selectCategory() {
     setSelection({ selection: "Category" });
-  };
+  }
 
   function selectOrganization() {
     setSelection({ selection: "Organization" });
-  };
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
-  };
+  }
 
   function handleNoSelection(event) {
     if (categoryVals < 1 && parentVals < 1) {
       event.preventDefault();
       alert("Please make a selection.");
     }
-  };
+  }
 
   useEffect(() => {
     //this seems hacky.  There must be a better way...SO?
@@ -79,9 +79,7 @@ const AdvancedSearchModal = (props) => {
     <div className="modal">
       <div className="modal-box">
         <div className="modal-search-heading-container">
-          <div className="modal-heading-title">
-            Search by {`${selection}`}
-          </div>
+          <div className="modal-heading-title">Search by Organization</div>
 
           <div className="search-nav-container-2">
             <div className="modal-heading-button" onClick={onClose}>
@@ -91,7 +89,7 @@ const AdvancedSearchModal = (props) => {
             <Link
               to={{
                 pathname: `/results`,
-                search: queryBuilder(categoryVals, parentVals),
+                search: queryBuilder(categoryVals, parentVals)
               }}
               onClick={handleNoSelection}
             >
@@ -123,10 +121,7 @@ const AdvancedSearchModal = (props) => {
         </div>
         {/* --------------------------------------------------------------------- */}
         {selection === "Category" ? (
-          <form
-            className="modal-search-container"
-            onSubmit={handleSubmit}
-          >
+          <form className="modal-search-container" onSubmit={handleSubmit}>
             {generalCats.map((genCat) => {
               return (
                 <div key={genCat} className="modal-search-item">
@@ -134,10 +129,7 @@ const AdvancedSearchModal = (props) => {
                   {Object.keys(mainCatsMap[genCat] ?? []).map((mainCat) => {
                     return (
                       <React.Fragment key={mainCat}>
-                        <label
-                          className="advanced-container"
-                          htmlFor={mainCat}
-                        >
+                        <label className="advanced-container" htmlFor={mainCat}>
                           {mainCat}
                           <input
                             id={mainCat}
@@ -145,10 +137,7 @@ const AdvancedSearchModal = (props) => {
                             name={mainCat}
                             value={mainCat}
                             onChange={(val) =>
-                              toggleCheckedValue(
-                                val.target.value,
-                                selection
-                              )
+                              toggleCheckedValue(val.target.value, selection)
                             }
                           />
                           <span className="checkmark" />
@@ -161,79 +150,73 @@ const AdvancedSearchModal = (props) => {
             })}
           </form>
         ) : (
-            <form
-              className="modal-search-container"
-              onSubmit={handleSubmit}
-            >
-              {parentCats.map((parentCat) => {
-                return (
-                  <React.Fragment key={parentCat}>
-                    <label className="advanced-container" htmlFor={parentCat}>
-                      {parentCat}
-                      <input
-                        id={parentCat}
-                        type="checkbox"
-                        name={parentCat}
-                        value={parentCat}
-                        onChange={(val) =>
-                          toggleCheckedValue(val.target.value, selection)
-                        }
-                      />
-                      <span className="checkmark" />
-                    </label>
-                  </React.Fragment>
-                );
-              })}
-            </form>
-          )}
+          <form className="modal-search-container" onSubmit={handleSubmit}>
+            {parentCats.map((parentCat) => {
+              return (
+                <React.Fragment key={parentCat}>
+                  <label className="advanced-container" htmlFor={parentCat}>
+                    {parentCat}
+                    <input
+                      id={parentCat}
+                      type="checkbox"
+                      name={parentCat}
+                      value={parentCat}
+                      onChange={(val) =>
+                        toggleCheckedValue(val.target.value, selection)
+                      }
+                    />
+                    <span className="checkmark" />
+                  </label>
+                </React.Fragment>
+              );
+            })}
+          </form>
+        )}
       </div>
     </div>,
     modalRoot
   );
-}
+};
 
 export const SearchBar = (props) => {
   const [searchValue, setSearchValue] = useState("");
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showAdvSearchModal, setShowAdvSearchModal] = useState(false);
   const { records, searchData, match } = props;
 
   function handleChange(e) {
     const value = e.target.value;
     setSearchValue(value);
-  };
+  }
 
-  function handleKeyPress (e) {
-    if (e.key == 'Enter') {
-      searchParams.set('search', searchValue);
-      setSearchParams(searchParams)
+  function handleKeyPress(e) {
+    if (e.key == "Enter") {
+      searchParams.set("search", searchValue);
+      setSearchParams(searchParams);
       e.preventDefault();
     }
   }
 
   function toggleAdvSearchModal() {
     setShowAdvSearchModal(!showAdvSearchModal);
-  };
+  }
 
-  function handleAdvSearchCloseModal () {
+  function handleAdvSearchCloseModal() {
     setShowAdvSearchModal(false);
-  };
+  }
 
   const searchCats = [
     "general_category",
     "main_category",
     "parent_organization",
-    "listing",
+    "listing"
   ];
 
   const searchList = getFilteredSearchList(searchCats, records);
 
   return (
     <div className="search-bar">
-      <form
-        className=""
-        style={{ width: "100%" }}
-      >
+      <form className="" style={{ width: "100%" }}>
         <input
           className="search-input"
           id="search-item"
@@ -247,7 +230,7 @@ export const SearchBar = (props) => {
         />
         {/* loop through the list of options */}
         <datalist id="data">
-          {searchList.map((item) => (
+          {searchList?.map((item) => (
             <option key={item} value={item} />
           ))}
         </datalist>
@@ -259,7 +242,7 @@ export const SearchBar = (props) => {
           to={`/results?search=${searchValue}`}
           //onClick={handleSubmit}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
             <FontAwesomeIcon icon="search" style={{ marginLeft: 10 }} />
             <span style={{ marginRight: 30 }}>SEARCH</span>
           </div>
@@ -277,4 +260,4 @@ export const SearchBar = (props) => {
       ) : null}
     </div>
   );
-}
+};

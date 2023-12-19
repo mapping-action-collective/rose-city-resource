@@ -1,63 +1,58 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import queryString from 'query-string';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import IconSelector from '../Home/IconSelector';
-import { SearchBar } from '../Home/SearchBar';
-import Cards from './Cards';
-import SimpleMap from './Map';
-import { getFilteredRecords, detailsQueryBuilder } from '../../utils/api';
-import '../../css/Results.css';
+import React, { useState, useEffect, useMemo } from "react";
+import { Link, useLocation } from "react-router-dom";
+import queryString from "query-string";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import IconSelector from "../Home/IconSelector";
+import { SearchBar } from "../Home/SearchBar";
+import Cards from "./Cards";
+import SimpleMap from "./Map";
+import { getFilteredRecords, detailsQueryBuilder } from "../../utils/api";
+import "../../css/Results.css";
 
 const Results = (props) => {
   const [selectedListing, setSelectedListing] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [clickType, setClickType] = useState(null);  //to keep track of how scroll should happen
- 
+  const [clickType, setClickType] = useState(null); //to keep track of how scroll should happen
+
   const location = useLocation();
 
   const updateListing = (id, _clickType) => {
-    setSelectedListing(id);
     setClickType(_clickType);
+    setSelectedListing(id);
   };
 
   const query = queryString.parse(location.search);
-  const dataMap = useMemo(() => ({
+
+  const dataMap = {
     search: query.search,
     category: query.category,
     parent: query.parent
-  }), [query.search, query.category, query.parent]);
+  };
 
   const { records } = props;
 
   useEffect(() => {
-    setLoading(false)
-  }, [])
+    setLoading(false);
+  }, []);
 
-  /*
-    Avoid creating a new data object for the same set of items,
-    since the map component does not currently deeply compare changes
-    and will malfunction if the data object changes for the same items
-  */
-  const data = useMemo(() => {
-    return getFilteredRecords(
-      dataMap.search,
-      dataMap.category,
-      dataMap.parent,
-      records)
-  }, [dataMap, records])
+  /* Warning: removing useMemo here will cause a lot of UI glitching and bugginess in the map */
+  const data = useMemo(
+    () =>
+      getFilteredRecords(
+        dataMap.search,
+        dataMap.category,
+        dataMap.parent,
+        records
+      ),
+    [dataMap.search, dataMap.category, dataMap.parent, records]
+  );
 
-  const {
-    searchData,
-    handleCardSave,
-    handleSaveDelete,
-    savedDataId
-  } = props;
+  const { searchData, handleCardSave, handleSaveDelete, savedDataId } = props;
 
   const styles = {
     faIcon: {
-      color: '#393f48',
-      marginRight: '5px'
+      color: "#393f48",
+      marginRight: "5px"
     }
   };
 
@@ -73,7 +68,7 @@ const Results = (props) => {
       <IconSelector
         records={records}
         searchData={searchData}
-        path={'/results'}
+        path={"/results"}
         isVisible={false}
       />
 
@@ -91,7 +86,7 @@ const Results = (props) => {
               <div className="print-button-container">
                 <Link
                   to={{
-                    pathname: '/details',
+                    pathname: "/details",
                     search: detailsQueryBuilder(savedDataId)
                   }}
                 >
@@ -127,7 +122,7 @@ const Results = (props) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Results;

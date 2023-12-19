@@ -54,16 +54,5 @@ export default defineConfig({
         });
       },
     },
-  ],
-
-  test: {
-    reporters: ['default'],
-    coverage: {
-      reportsDirectory: '../../coverage/apps/my-app',
-      provider: 'v8',
-    },
-    globals: true,
-    environment: 'jsdom',
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-  },
+  ]
 });

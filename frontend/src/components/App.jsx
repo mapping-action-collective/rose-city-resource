@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Loading from "./static_components/Loading";
 import Home from "./Home/Home";
 import About from "./static_components/About";
@@ -7,8 +7,9 @@ import Results from "./Results/Results";
 import Details from "./Details";
 import Nav from "./Nav";
 import Footer from "./static_components/Footer";
-import Banner from './Banner'
+import Banner from "./Banner";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import sanitizeHtml from "sanitize-html-react";
 import {
   getRecords,
   addUserDistancesToRecords,
@@ -16,54 +17,44 @@ import {
   getCategorySearchData,
   getMainSearchData,
   dateString,
-  isPreviewMode,
+  isPreviewMode
 } from "../utils/api";
 import "../icons/iconsInit";
-import sanitizeHtml from 'sanitize-html-react'
+import config from "../config.json";
 
-class App extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      navDrawerVisible: false,
-      records: null,
-      searchData: null,
-      savedDataId: [],
-      metaInformation: {}
-    };
+const App = () => {
+  const [records, setRecords] = useState(null);
+  const [searchData, setSearchData] = useState(null);
+  const [savedDataId, setSavedDataId] = useState([]);
+  const [metaInformation, setMetaInformation] = useState({});
+  const [bannerContent, setBannerContent] = useState("");
+  const [bannerEnabled, setBannerEnabled] = useState(false);
+  const [revisionDate, setRevisionDate] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
-    /* Attempt to convert an old RCR link from when HashRouter was in use */
-    /* This is a convenience for the user to be able to use old links */
-    const location = window.location;
-    const url = location.href;
-    if (/#/.test(url)) {
-      const newLocation = location.hash.substring(1);
-      window.location = newLocation;
-    }
+  /* Attempt to convert an old RCR link from when HashRouter was in use */
+  /* This is a convenience for the user to be able to use old links */
+  const location = window.location;
+  const url = location.href;
+  if (/#/.test(url)) {
+    const newLocation = location.hash.substring(1);
+    window.location = newLocation;
   }
 
-  //state lisfted from
-  //Cards to keep track of saved cards
-  //this may need to be moved down to results
-  handleCardSave = (id) => {
-    const { savedDataId } = this.state;
+  const handleCardSave = (id) => {
     if (savedDataId.indexOf(id) === -1) {
-      //build up the state array without directly mutating state
-      this.setState((prevState) => ({
-        savedDataId: [...prevState.savedDataId, id],
-      }));
+      setSavedDataId((prevSavedDataId) => [...prevSavedDataId, id]);
     } else {
       const filterArr = savedDataId.filter((item) => item !== id);
-      this.setState(() => ({ savedDataId: filterArr }));
+      setSavedDataId(filterArr);
     }
   };
 
-  handleSaveDelete = () => {
-    this.setState(() => ({ savedDataId: [] }));
+  const handleSaveDelete = () => {
+    setSavedDataId([]);
   };
-  
-  // build the searching data
-  filterData = (records) => {
+
+  const filterData = (records) => {
     const generalCategories = getCategorySearchData(
       records,
       "general_category"
@@ -77,160 +68,139 @@ class App extends React.PureComponent {
     return {
       general: generalCategories,
       main: mainCategories,
-      parent: parentCategories,
+      parent: parentCategories
     };
   };
 
-  handleDrawer = () =>
-    this.setState((prev) => ({
-      navDrawerVisible: !prev.navDrawerVisible,
-    }));
-
-  handleGetData = async () => {
+  const handleGetData = async () => {
     const records = await getRecords();
-    const searchData = this.filterData(records);
-    this.setState(() => ({ records, searchData }));
+    const searchData = filterData(records);
+    setSearchData(searchData);
     return records;
   };
 
-  handleBrowserGeolocatorInput = async (records) => {
-    const {
-      records: distanceRecords,
-      currentCoords,
-    } = await addUserDistancesToRecords(records);
+  const handleBrowserGeolocatorInput = async (records) => {
+    const { records: distanceRecords, currentCoords } =
+      await addUserDistancesToRecords(records);
     if (currentCoords) {
-      this.setState(() => ({ records: distanceRecords }));
+      setRecords(distanceRecords);
     }
   };
 
-  componentDidMount = async () => {
-    const meta = await getMetaInformation();
-
-    if (meta) {
-      const cleanHtml = sanitizeHtml(meta.site_banner_content, {
-        allowedTags: [
-          "address", "article", "aside", "footer", "header", "h1", "h2", "h3", "h4",
-          "h5", "h6", "hgroup", "main", "nav", "section", "blockquote", "dd", "div",
-          "dl", "dt", "figcaption", "figure", "hr", "li", "main", "ol", "p", "pre",
-          "ul", "a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "data", "dfn",
-          "em", "i", "kbd", "mark", "q", "rb", "rp", "rt", "rtc", "ruby", "s", "samp",
-          "small", "span", "strong", "sub", "sup", "time", "u", "var", "wbr", "caption",
-          "col", "colgroup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "img"
-        ],
-        disallowedTagsMode: 'discard',
-        allowedAttributes: {
-          a: [ 'href', 'name', 'target' ],
-          img: [ 'src' ], 
-          div: [ 'style', 'class' ],
-          span: [ 'style', 'class' ],
-          i: [ 'style', 'class']
-        },
-        selfClosing: [ 'img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta' ],
-        allowedSchemes: [ 'http', 'https', 'ftp', 'mailto', 'tel' ],
-        allowedSchemesByTag: {},
-        allowedSchemesAppliedToAttributes: [ 'href', 'src', 'cite' ],
-        allowProtocolRelative: true,
-        enforceHtmlBoundary: false
-      });
-
-      this.bannerContent = cleanHtml;
-      this.bannerEnabled = meta.site_banner_enabled
-      this.revisionDate = dateString(meta.last_update);
+  useEffect(() => {
+    if (records) {
+      setIsLoading(false);
     }
+  }, [records]);
 
-    const records = await this.handleGetData();
-    this.handleBrowserGeolocatorInput(records);
-  };
+  useEffect(() => {
+    const fetchMetaAndData = async () => {
+      // Since we can't do async/await directly in useEffect
+      if (!Object.keys(metaInformation).length) {
+        setMetaInformation(await getMetaInformation());
+      }
 
-  render() {
-    const { records, searchData, savedDataId } = this.state;
+      if (Object.keys(metaInformation).length) {
+        const cleanHtml = sanitizeHtml(
+          metaInformation.site_banner_content,
+          config.banner.options
+        );
 
-    return (
-      <React.Fragment>
-        {!records ? (
-          <Loading />
-        ) : (
-          <BrowserRouter>
+        setBannerContent(cleanHtml);
+        setBannerEnabled(metaInformation.site_banner_enabled);
+        setRevisionDate(dateString(metaInformation.last_update));
+      }
+
+      if (!records) {
+        const nonDistanceRecords = await handleGetData();
+        handleBrowserGeolocatorInput(nonDistanceRecords);
+      }
+    };
+
+    fetchMetaAndData();
+  }, [metaInformation, records]);
+
+  return (
+    <BrowserRouter>
+      <div>
+        <div className="main-content">
+          {isPreviewMode() === true ? (
             <div>
-              <div className="main-content">
-                {isPreviewMode() === true ? (
-                  <div>
-                    <center>
-                      This site is using preview data. To view production data,
-                      please close the tab and reload the site
-                    </center>
-                  </div>
-                ) : (
-                  <React.Fragment />
-                )}
-                {this.bannerEnabled === true
-                  && typeof this.bannerContent === 'string'
-                  && this.bannerContent.length > 0
-                  ? <Banner 
-                      bannerEnabled={this.bannerEnabled}
-                      bannerContent={this.bannerContent}
-                      />
-                  : <React.Fragment />
-                }
-                <Nav />
-                <Routes>
-                  <Route
-                    exact
-                    path="/"
-                    element={
-                      <Home
-                        records={records}
-                        searchData={searchData}
-                      />
-                    }
-                  />
-                  <Route exact path="/about" element={<About />} />
-                  <Route exact path="/suggest-edit" element={<SuggestEdit />} />
-                  <Route
-                    path="/results"
-                    element={
-                      <Results
-                        records={records}
-                        searchData={searchData}
-                        handleCardSave={this.handleCardSave}
-                        handleSaveDelete={this.handleSaveDelete}
-                        savedDataId={savedDataId}
-                      />
-                    }
-                  />
-                  <Route
-                    exact
-                    path="/details"
-                    element={
-                      <Details
-                        records={records}
-                        handleCardSave={this.handleCardSave}
-                        savedDataId={savedDataId}
-                      />
-                    }
-                  />
-                  <Route
-                    path="/admin"
-                    render={() => {
-                      window.location.href = [
-                        window.location.protocol,
-                        "//",
-                        window.location.host.replace(/\d+/, "5900"),
-                        "/admin/dashboard",
-                      ].join("");
-                    }}
-                  />
-                  {/* for all other routes */}
-                  <Route render={() => <p>Not Found</p>} />
-                </Routes>
-              </div>
-              <Footer revisionDate={this.revisionDate} />
+              <center>
+                This site is using preview data. To view production data, please
+                close the tab and reload the site
+              </center>
             </div>
-          </BrowserRouter>
-        )}
-      </React.Fragment>
-    );
-  }
-}
+          ) : (
+            <React.Fragment />
+          )}
+          {bannerEnabled === true &&
+          typeof bannerContent === "string" &&
+          bannerContent.length > 0 ? (
+            <Banner
+              bannerEnabled={bannerEnabled}
+              bannerContent={bannerContent}
+            />
+          ) : (
+            <React.Fragment />
+          )}
+          <Nav />
+          <Routes>
+            <Route
+              exact
+              path="/"
+              element={<Home records={records} searchData={searchData} />}
+            />
+            <Route exact path="/about" element={<About />} />
+            <Route exact path="/suggest-edit" element={<SuggestEdit />} />
+            <Route
+              path="/results"
+              element={
+                <React.Fragment>
+                  {isLoading ? (
+                    <Loading />
+                  ) : (
+                    <Results
+                      records={records}
+                      searchData={searchData}
+                      handleCardSave={handleCardSave}
+                      handleSaveDelete={handleSaveDelete}
+                      savedDataId={savedDataId}
+                    />
+                  )}
+                </React.Fragment>
+              }
+            />
+            <Route
+              exact
+              path="/details"
+              element={
+                <Details
+                  records={records}
+                  handleCardSave={handleCardSave}
+                  savedDataId={savedDataId}
+                />
+              }
+            />
+            <Route
+              path="/admin"
+              render={() => {
+                window.location.href = [
+                  window.location.protocol,
+                  "//",
+                  window.location.host.replace(/\d+/, "5900"),
+                  "/admin/dashboard"
+                ].join("");
+              }}
+            />
+            {/* for all other routes */}
+            <Route render={() => <p>Not Found</p>} />
+          </Routes>
+        </div>
+        <Footer revisionDate={revisionDate} />
+      </div>
+    </BrowserRouter>
+  );
+};
 
 export default App;

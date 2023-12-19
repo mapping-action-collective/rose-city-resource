@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import ScrollToTop from "react-scroll-up";
 import { Tooltip } from "react-tooltip";
 import MediaQuery from "react-responsive";
@@ -9,10 +9,10 @@ import {
   cardPhoneTextFilter,
   cardTextFilter,
   cardSortByDistance,
-  cardWebAddressFixer,
+  cardWebAddressFixer
 } from "../../utils/api";
 import { greenLMarker } from "../../icons/mapIcons";
-import { faAnglesUp } from '@fortawesome/free-solid-svg-icons'
+import { faAnglesUp } from "@fortawesome/free-solid-svg-icons";
 
 const DetailMap = (props) => {
   return (
@@ -25,7 +25,10 @@ const DetailMap = (props) => {
         dragging={true}
         touchZoom={true}
       >
-        <TileLayer attribution = '' url='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png' />
+        <TileLayer
+          attribution=""
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        />
         <Marker position={props.coords} icon={greenLMarker} />
       </MapContainer>
     </React.Fragment>
@@ -36,7 +39,7 @@ const DetailMap = (props) => {
 //card style when a location is
 //selected by user
 const style = {
-  boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.5)",
+  boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 6px 20px 0 rgba(0, 0, 0, 0.5)"
 };
 
 const Card = ({
@@ -62,13 +65,16 @@ const Card = ({
     parsedListing: record.listing,
     parsedPhone: cardPhoneTextFilter(record),
     parsedWeb: cardWebAddressFixer(record.website),
-    parsedStreet: record.street !== null && record.street !== '' ? `${cardTextFilter(record.street)} ${cardTextFilter(
-      record.street2
-    )}`.trim() : '',
+    parsedStreet:
+      record.street !== null && record.street !== ""
+        ? `${cardTextFilter(record.street)} ${cardTextFilter(
+            record.street2
+          )}`.trim()
+        : "",
     parsedCity: `${record.city}, OR ${record.postal_code}`,
     parsedDescription: cardTextFilter(record.service_description),
     parsedHours: cardTextFilter(record.hours),
-    parsedCOVID: cardTextFilter(record.covid_message),
+    parsedCOVID: cardTextFilter(record.covid_message)
   };
 
   return (
@@ -90,9 +96,9 @@ const Card = ({
             style={
               selectedListing === record.id
                 ? {
-                  color: "#27a727",
-                  fontWeight: "bolder",
-                }
+                    color: "#27a727",
+                    fontWeight: "bolder"
+                  }
                 : null
             }
           >
@@ -154,7 +160,7 @@ const Card = ({
           ) : null}
         </div>
         <div className="card-street">
-          {textMap.parsedStreet != null && textMap.parsedStreet !== '' ? (
+          {textMap.parsedStreet != null && textMap.parsedStreet !== "" ? (
             <div>
               {textMap.parsedStreet} <br />
               {textMap.parsedCity} <br />
@@ -179,8 +185,8 @@ const Card = ({
               </a>
             </div>
           ) : (
-              <div className="card-undisclosed">Undisclosed Location</div>
-            )}
+            <div className="card-undisclosed">Undisclosed Location</div>
+          )}
         </div>
         <div className="covid-item covid-temp-listing">
           {textMap.parsedCOVID === "TEMPORARY COVID RESPONSE SERVICE"
@@ -236,8 +242,8 @@ const Card = ({
               {textMap.parsedCOVID === "CLOSED DUE TO COVID" ? (
                 <div className="covid-item">CLOSED</div>
               ) : (
-                  textMap.parsedHours
-                )}
+                textMap.parsedHours
+              )}
             </div>
           </div>
         ) : null}
@@ -251,7 +257,7 @@ const Card = ({
       ) : null}
     </div>
   );
-}
+};
 
 const Cards = ({
   data,
@@ -262,106 +268,102 @@ const Cards = ({
   showMapDetail,
   clickType
 }) => {
-  const [cardRefs, setCardRefs] = useState([]);
-console.log('SHOW MAP DETAIL', showMapDetail)
-  const cardScrollToCard = (cardRef) => {
-    if (Array.isArray(cardRef) && cardRef.length > 0) {
-      const entry = cardRef.find(entry => entry[0]?.current !== null);
-      if (Array.isArray(entry) && entry.length > 0) {
-        const card = entry[0]?.current;
-        if (card) {
-          window.scrollTo({ top: card.offsetTop - 60, behavior: "smooth" });
-        }
-      }
+  //const [cardRefs, setCardRefs] = useState([]);
+  const cardRefs = useRef([]);
+
+  const cardScrollToCard = (id) => {
+    const ref = cardRefs.current[id];
+    if (ref) {
+      const card = ref.current; // cardRefs has a current property and so does each ref stored in that array (yeah, confusing)
+      window.scrollTo({ top: card.offsetTop - 60, behavior: "smooth" });
     }
   };
 
   const addCardRef = (ref, id) => {
-    if (!cardRefs.some(item => item[0][1] === id)) {
-      const refList = cardRefs
-      refList.push([ref, id])
-      setCardRefs([...cardRefs, [ref.current, id]]);
-    }
+    cardRefs.current[id] = ref;
   };
 
-  useEffect(() => {
-    const currentCard = cardRefs.filter((ref) => ref[1] === selectedListing);
+  useEffect(
+    () => {
+      if (
+        window.matchMedia("(max-width: 992px)").matches &&
+        clickType === "popup"
+      ) {
+        cardScrollToCard(selectedListing);
+      }
 
-    if (
-      window.matchMedia("(max-width: 992px)").matches &&
-      clickType === "popup"
-    ) {
-      cardScrollToCard(currentCard);
-    }
+      if (
+        window.matchMedia("(max-width: 992px)").matches &&
+        clickType === "card"
+      ) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
 
-    if (
-      window.matchMedia("(max-width: 992px)").matches &&
-      clickType === "card"
-    ) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    if (window.matchMedia("(min-width: 993px)").matches) {
-      cardScrollToCard(currentCard);
-    }
-  }, [selectedListing, cardRefs]); /* eslint-disable-line react-hooks/exhaustive-deps */
+      if (window.matchMedia("(min-width: 993px)").matches) {
+        cardScrollToCard(selectedListing);
+      }
+    },
+    [selectedListing] /* eslint-disable-line react-hooks/exhaustive-deps */
+  );
 
   return (
     // the cards container should scroll on its own
     <div className="cards-container">
       <CountBar savedDataId={savedDataId} data={data} />
 
-      {cardSortByDistance(data).map((record, index) => (
-        <Card
-          key={`${record.id}-${index}`}
-          record={record}
-          selectedListing={selectedListing}
-          updateListing={updateListing}
-          handleCardSave={handleCardSave}
-          //handleCardClick={handleCardClick}
-          addCardRef={addCardRef}
-          savedDataId={savedDataId}
-          showMapDetail={showMapDetail}
-        />
-      ))}
-      <MediaQuery query="(max-width: 992px)">
-        <ScrollToTop showUnder={160} style={{
-          position: 'fixed',
-          bottom: 50,
-          left: 320,
-          cursor: 'pointer',
-          transitionDuration: '0.2s',
-          transitionTimingFunction: 'linear',
-          transitionDelay: '0s',
-          fontSize: '60px',
-          color: 'gray'
-        }}>
-          <FontAwesomeIcon
-            icon={faAnglesUp}
-            size="lg"
+      {cardSortByDistance(data).map((record, index) => {
+        return (
+          <Card
+            key={`${record.id}-${index}`}
+            record={record}
+            selectedListing={selectedListing}
+            updateListing={updateListing}
+            handleCardSave={handleCardSave}
+            //handleCardClick={handleCardClick}
+            addCardRef={addCardRef}
+            savedDataId={savedDataId}
+            showMapDetail={showMapDetail}
           />
+        );
+      })}
+      <MediaQuery query="(max-width: 992px)">
+        <ScrollToTop
+          showUnder={160}
+          style={{
+            position: "fixed",
+            bottom: 50,
+            left: 320,
+            cursor: "pointer",
+            transitionDuration: "0.2s",
+            transitionTimingFunction: "linear",
+            transitionDelay: "0s",
+            fontSize: "60px",
+            color: "gray"
+          }}
+        >
+          <FontAwesomeIcon icon={faAnglesUp} size="lg" />
         </ScrollToTop>
       </MediaQuery>
       <MediaQuery query="(min-width: 993px)">
-      <ScrollToTop showUnder={160} style={{
-          position: 'fixed',
-          bottom: 50,
-          left: 220,
-          cursor: 'pointer',
-          transitionDuration: '0.2s',
-          transitionTimingFunction: 'linear',
-          transitionDelay: '0s',
-          fontSize: '50px',
-          color: 'gray'
-        }}>
-          <FontAwesomeIcon
-            icon={faAnglesUp}
-            size="lg"
-          />
+        <ScrollToTop
+          showUnder={160}
+          style={{
+            position: "fixed",
+            bottom: 50,
+            left: 220,
+            cursor: "pointer",
+            transitionDuration: "0.2s",
+            transitionTimingFunction: "linear",
+            transitionDelay: "0s",
+            fontSize: "50px",
+            color: "gray"
+          }}
+        >
+          <FontAwesomeIcon icon={faAnglesUp} size="lg" />
         </ScrollToTop>
       </MediaQuery>
     </div>
   );
-}
+};
 
 export default Cards;

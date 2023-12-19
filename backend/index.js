@@ -90,6 +90,9 @@ if (process.env.NODE_ENV === "production") {
       if (path.endsWith('.html')) {
         res.setHeader('Cache-Control', 'no-cache'); /* ALWAYS re-validate HTML files */
       }
+      else if (path.endsWith('serviceWorker.js')) {
+        res.setHeader('Cache-Control', 'no-cache'); /* NEVER cache the service worker */
+      }
       else {
         res.header('Cache-Control', `max-age=31536000`); /* Aggressively cache other static content */
       }
