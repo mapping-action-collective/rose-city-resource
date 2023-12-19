@@ -138,8 +138,7 @@ export function getFilteredRecords(
     );
     return filteredrecords;
   } else {
-    //const filteredrecords = getFilteredSearchData(searchVals, records);
-    const filteredrecords = getFilteredSearchDataV2(searchVals, records);
+    const filteredrecords = getFilteredSearchData(searchVals, records);
     return filteredrecords;
   }
 }
@@ -380,8 +379,10 @@ function getFilteredCatParentData(categoryVals, parentVals, records) {
   return filteredRecords;
 }
 
-function getFilteredSearchDataV2(searchValue, records) {
+function getFilteredSearchData(searchValue, records) {
   if (!records || records.length === 0) return [];
+  if (!searchValue || searchValue === "") return [];
+
   const fuse = new Fuse(records, config.search.options);
   const t0 = performance.now();
   const fuseResults = fuse.search(searchValue);
@@ -392,6 +393,7 @@ function getFilteredSearchDataV2(searchValue, records) {
     } results}`
   );
   const resultRecords = fuseResults.map((result) => result.item);
+
   return resultRecords;
 }
 
