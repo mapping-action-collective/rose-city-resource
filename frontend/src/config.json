@@ -3,7 +3,9 @@
     "default": {
       "center": [45.52345, -122.6762],
       "zoom": 10
-    }
+    },
+    "attribution": "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a>",
+    "tileUrl": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
   },
   "search": {
     "options": {

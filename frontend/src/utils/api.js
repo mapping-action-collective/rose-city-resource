@@ -384,14 +384,14 @@ function getFilteredSearchData(searchValue, records) {
   if (!searchValue || searchValue === "") return [];
 
   const fuse = new Fuse(records, config.search.options);
-  const t0 = performance.now();
+  // const t0 = performance.now();
   const fuseResults = fuse.search(searchValue);
-  const t1 = performance.now();
-  console.log(
-    `Fuzzy search for '${searchValue}' took ${t1 - t0} ms for ${
-      fuseResults.length
-    } results}`
-  );
+  // const t1 = performance.now();
+  // console.log(
+  //   `Fuzzy search for '${searchValue}' took ${t1 - t0} ms for ${
+  //     fuseResults.length
+  //   } results}`
+  // );
   const resultRecords = fuseResults.map((result) => result.item);
 
   return resultRecords;

@@ -145,8 +145,8 @@ const SimpleMap = ({ updateListing, selectedListing, data }) => {
     >
       {locationMarker}
       <TileLayer
-        attribution=""
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        attribution={config.map.attribution}
+        url={config.map.tileUrl}
       />
       <MarkerClusterGroup showCoverageOnHover={false}>
         {mapData?.map((item) => {

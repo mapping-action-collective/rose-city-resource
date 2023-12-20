@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import MediaQuery from "react-responsive";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -6,7 +6,7 @@ import { CSSTransition } from "react-transition-group";
 import { objectKeyByValue, queryBuilder } from "../../utils/api.js";
 
 // font awesome icons color
-const iconColor = 'white';
+const iconColor = "white";
 
 /* Desktop display of main "Food," "Goods," etc icons */
 const PrimaryIconsLarge = ({
@@ -30,11 +30,7 @@ const PrimaryIconsLarge = ({
                 onMouseEnter={() => onMouseEnter(iconMap[icon], searchData)}
               >
                 <div>
-                  <FontAwesomeIcon
-                    icon={icon}
-                    color={iconColor}
-                    size="2x"
-                  />
+                  <FontAwesomeIcon icon={icon} color={iconColor} size="2x" />
                 </div>
                 <div className="icon-name">{iconMap[icon]}</div>
               </div>
@@ -49,7 +45,7 @@ const PrimaryIconsLarge = ({
                   key={selection}
                   to={{
                     pathname: path,
-                    search: queryBuilder([selection], []),
+                    search: queryBuilder([selection], [])
                   }}
                 >
                   <div className="icon-dropdown-container">
@@ -71,7 +67,7 @@ const PrimaryIconsSmall = ({
   iconMap,
   searchData,
   toggleBrowseContainer,
-  isBrowseVisible,
+  isBrowseVisible
 }) => {
   return (
     <MediaQuery query="(max-width: 992px)">
@@ -96,40 +92,42 @@ const PrimaryIconsSmall = ({
           classNames="browse-drawer"
           mountOnEnter={true}
         >
-          {(/*state*/) => {
-            return (
-              <div className="icons-container">
-                {Object.keys(iconMap).map((icon) => {
-                  return (
-                    <div
-                      key={icon}
-                      className="icon-container"
-                      onClick={() => onSelectFwd(iconMap[icon], searchData)}
-                    >
-                      <div className="small-icon">
-                        <FontAwesomeIcon
-                          icon={icon}
-                          color={iconColor}
-                          size="lg"
-                        />
-                      </div>
+          {
+            (/*state*/) => {
+              return (
+                <div className="icons-container">
+                  {Object.keys(iconMap).map((icon) => {
+                    return (
+                      <div
+                        key={icon}
+                        className="icon-container"
+                        onClick={() => onSelectFwd(iconMap[icon], searchData)}
+                      >
+                        <div className="small-icon">
+                          <FontAwesomeIcon
+                            icon={icon}
+                            color={iconColor}
+                            size="lg"
+                          />
+                        </div>
 
-                      <div className="icon-name">{iconMap[icon]}</div>
-                      <div className="category-plus">
-                        <FontAwesomeIcon
-                          //use the plus icon for onClick events
-                          icon={"angle-right"}
-                          color={iconColor}
-                          size="lg"
-                        />
+                        <div className="icon-name">{iconMap[icon]}</div>
+                        <div className="category-plus">
+                          <FontAwesomeIcon
+                            //use the plus icon for onClick events
+                            icon={"angle-right"}
+                            color={iconColor}
+                            size="lg"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-                <div className="browse-categories-bottom" />
-              </div>
-            );
-          }}
+                    );
+                  })}
+                  <div className="browse-categories-bottom" />
+                </div>
+              );
+            }
+          }
         </CSSTransition>
       </div>
     </MediaQuery>
@@ -143,7 +141,7 @@ const SecondaryIcons = ({
   searchData,
   iconMap,
   toggleBrowseContainer,
-  isBrowseVisible,
+  isBrowseVisible
 }) => {
   return (
     <MediaQuery query="(max-width: 992px)">
@@ -167,229 +165,196 @@ const SecondaryIcons = ({
           timeout={500}
           classNames="browse-drawer"
         >
-          {(/*status*/) => (
-            <div className="icons-container">
-              <div
-                className="selected-item"
-                onClick={() => onSelectBack(searchData)}
-              >
-                <div>
-                  <FontAwesomeIcon
-                    icon={"angle-left"}
-                    color={iconColor}
-                    size="lg"
-                  />
+          {
+            (/*status*/) => (
+              <div className="icons-container">
+                <div
+                  className="selected-item"
+                  onClick={() => onSelectBack(searchData)}
+                >
+                  <div>
+                    <FontAwesomeIcon
+                      icon={"angle-left"}
+                      color={iconColor}
+                      size="lg"
+                    />
+                  </div>
+                  <div>
+                    <FontAwesomeIcon
+                      icon={objectKeyByValue(iconMap, selectedItem)[0]}
+                      color={iconColor}
+                      size="sm"
+                    />
+                  </div>
+                  <div>{selectedItem}</div>
                 </div>
-                <div>
-                  <FontAwesomeIcon
-                    icon={objectKeyByValue(iconMap, selectedItem)[0]}
-                    color={iconColor}
-                    size="sm"
-                  />
-                </div>
-                <div>{selectedItem}</div>
+                {Object.keys(selectedData).map((selection) => {
+                  return (
+                    <Link
+                      key={selection}
+                      to={{
+                        pathname: `/results`,
+                        search: queryBuilder([selection], [])
+                      }}
+                    >
+                      <div className="icon-container">
+                        <div className="icon-name">{`${selection}  (${selectedData[selection]})`}</div>
+                      </div>
+                    </Link>
+                  );
+                })}
+                <div className="browse-categories-bottom" />
               </div>
-              {Object.keys(selectedData).map((selection) => {
-                return (
-                  <Link
-                    key={selection}
-                    to={{
-                      pathname: `/results`,
-                      search: queryBuilder([selection], []),
-                    }}
-                  >
-                    <div
-                      className="icon-container">
-                      <div className="icon-name">{`${selection}  (${selectedData[selection]})`}</div>
-                    </div>
-                  </Link>
-                );
-              })}
-              <div className="browse-categories-bottom" />
-            </div>
-          )}
+            )
+          }
         </CSSTransition>
       </div>
     </MediaQuery>
   );
 };
 
-class Selectors extends React.PureComponent {
-  state = {
-    isBrowseVisible: this.props.isVisible,
+const Selectors = ({
+  isVisible,
+  onMouseEnter,
+  onMouseExit,
+  onSelectFwd,
+  onSelectBack,
+  navCategory,
+  selectedItem,
+  selectedData,
+  searchData,
+  showDropdown,
+  path
+}) => {
+  const [isBrowseVisible, setIsBrowseVisible] = useState(isVisible);
+
+  const toggleBrowseContainer = () => {
+    setIsBrowseVisible((prevIsBrowseVisible) => !prevIsBrowseVisible);
   };
 
-  toggleBrowseContainer = () => {
-    this.setState((prevState) => {
-      return { isBrowseVisible: !prevState.isBrowseVisible };
-    });
+  const iconMap = {
+    utensils: "Food",
+    home: "Housing & Shelter",
+    tshirt: "Goods",
+    "bus-alt": "Transit",
+    heartbeat: "Health & Wellness",
+    "money-bill-wave": "Money",
+    "hand-holding-heart": "Care & Safety",
+    briefcase: "Work",
+    "balance-scale": "Legal",
+    sun: "Day Services",
+    "hands-helping": "Specialized Assistance"
   };
 
-  render() {
-    const { isBrowseVisible } = this.state;
+  switch (navCategory) {
+    case "general_category":
+      return (
+        <div>
+          <PrimaryIconsLarge
+            onMouseEnter={onMouseEnter}
+            onMouseExit={onMouseExit}
+            showDropdown={showDropdown}
+            iconMap={iconMap}
+            navCategory={navCategory}
+            searchData={searchData}
+            selectedData={selectedData}
+            path={path}
+            toggleBrowseContainer={toggleBrowseContainer}
+            isBrowseVisible={isBrowseVisible}
+          />
 
-    const {
-      onMouseEnter,
-      onMouseExit,
-      onSelectFwd,
-      onSelectBack,
-      navCategory,
-      selectedItem,
-      selectedData,
-      searchData,
-      showDropdown,
-      path,
-    } = this.props;
-    //set these here to make the UI render quicker upon start
-    const iconMap = {
-      utensils: "Food",
-      home: "Housing & Shelter",
-      tshirt: "Goods",
-      "bus-alt": "Transit",
-      heartbeat: "Health & Wellness",
-      "money-bill-wave": "Money",
-      "hand-holding-heart": "Care & Safety",
-      briefcase: "Work",
-      "balance-scale": "Legal",
-      sun: "Day Services",
-      "hands-helping": "Specialized Assistance",
-    };
+          <PrimaryIconsSmall
+            onSelectFwd={onSelectFwd}
+            navCategory={navCategory}
+            iconMap={iconMap}
+            searchData={searchData}
+            toggleBrowseContainer={toggleBrowseContainer}
+            isBrowseVisible={isBrowseVisible}
+          />
+        </div>
+      );
+    case "main_category":
+      return (
+        <div>
+          <PrimaryIconsLarge
+            onMouseEnter={onMouseEnter}
+            onMouseExit={onMouseExit}
+            showDropdown={showDropdown}
+            iconMap={iconMap}
+            navCategory={navCategory}
+            searchData={searchData}
+            toggleBrowseContainer={toggleBrowseContainer}
+            isBrowseVisible={isBrowseVisible}
+          />
 
-    switch (navCategory) {
-      //include this switch so that the home UI renders without an async call
-      case "general_category":
-        // case 'main_category':
-        return (
-          <div>
-            <PrimaryIconsLarge
-              onMouseEnter={onMouseEnter}
-              onMouseExit={onMouseExit}
-              showDropdown={showDropdown}
-              iconMap={iconMap}
-              navCategory={navCategory}
-              searchData={searchData}
-              selectedData={selectedData}
-              path={path}
-              toggleBrowseContainer={this.toggleBrowseContainer}
-              isBrowseVisible={isBrowseVisible}
-            />
-
-            <PrimaryIconsSmall
-              onSelectFwd={onSelectFwd}
-              navCategory={navCategory}
-              iconMap={iconMap}
-              searchData={searchData}
-              toggleBrowseContainer={this.toggleBrowseContainer}
-              isBrowseVisible={isBrowseVisible}
-            />
-          </div>
-        );
-      case "main_category":
-        return (
-          <div>
-            <PrimaryIconsLarge
-              onMouseEnter={onMouseEnter}
-              onMouseExit={onMouseExit}
-              showDropdown={showDropdown}
-              iconMap={iconMap}
-              navCategory={navCategory}
-              searchData={searchData}
-              toggleBrowseContainer={this.toggleBrowseContainer}
-              isBrowseVisible={isBrowseVisible}
-            />
-
-            <SecondaryIcons
-              onSelectBack={onSelectBack}
-              selectedItem={selectedItem}
-              selectedData={selectedData}
-              searchData={searchData}
-              iconMap={iconMap}
-              toggleBrowseContainer={this.toggleBrowseContainer}
-              isBrowseVisible={isBrowseVisible}
-            />
-          </div>
-        );
-      default:
-        return null;
-    }
+          <SecondaryIcons
+            onSelectBack={onSelectBack}
+            selectedItem={selectedItem}
+            selectedData={selectedData}
+            searchData={searchData}
+            iconMap={iconMap}
+            toggleBrowseContainer={toggleBrowseContainer}
+            isBrowseVisible={isBrowseVisible}
+          />
+        </div>
+      );
+    default:
+      return null;
   }
-}
+};
 
 //All the state and methods live here and are passed down as props to all the specific components.
-class IconSelector extends React.PureComponent {
-  state = {
-    navCategory: "general_category",
-    selectedItem: null,
-    selectedData: null,
-    showDropdown: false,
-  };
+const IconSelector = ({ searchData, path, isVisible }) => {
+  const [navCategory, setNavCategory] = useState("general_category");
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedData, setSelectedData] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  toggleSelectedItemFwd = (selectedItem, searchData) => {
+  const toggleSelectedItemFwd = (selectedItem, searchData) => {
     const selectedData = searchData.main[selectedItem];
-
-    this.setState({
-      navCategory: "main_category",
-      selectedItem,
-      selectedData,
-    });
+    setNavCategory("main_category");
+    setSelectedItem(selectedItem);
+    setSelectedData(selectedData);
   };
 
-  toggleSelectedItemBack = (searchData) => {
+  const toggleSelectedItemBack = (searchData) => {
     const selectedData = searchData.general;
-
-    this.setState({
-      selectedData,
-      selectedItem: null,
-      navCategory: "general_category",
-    });
+    setSelectedData(selectedData);
+    setSelectedItem(null);
+    setNavCategory("general_category");
   };
 
-  showSelectionBox = (selectedItem, searchData) => {
+  const showSelectionBox = (selectedItem, searchData) => {
     const selectedData = searchData.main[selectedItem];
-
-    this.setState({
-      navCategory: "general_category",
-      selectedItem,
-      selectedData,
-      showDropdown: true,
-    });
+    setNavCategory("general_category");
+    setSelectedItem(selectedItem);
+    setSelectedData(selectedData);
+    setShowDropdown(true);
   };
 
-  hideSelectionBox = () =>
-    this.setState({
-      showDropdown: false,
-      selectedData: null,
-      selectedItem: null,
-    });
+  const hideSelectionBox = () => {
+    setShowDropdown(false);
+    setSelectedData(null);
+    setSelectedItem(null);
+  };
 
-  render() {
-    const {
-      navCategory,
-      selectedItem,
-      selectedData,
-      showDropdown,
-    } = this.state;
-
-    const { searchData, path, isVisible } = this.props;
-
-    return (
-      <div className="all-categories">
-        <Selectors
-          onMouseEnter={this.showSelectionBox}
-          onMouseExit={this.hideSelectionBox}
-          onSelectFwd={this.toggleSelectedItemFwd}
-          onSelectBack={this.toggleSelectedItemBack}
-          navCategory={navCategory}
-          selectedData={selectedData}
-          searchData={searchData}
-          selectedItem={selectedItem}
-          showDropdown={showDropdown}
-          path={path}
-          isVisible={isVisible}
-        />
-      </div>
-    );
-  }
-}
+  return (
+    <div className="all-categories">
+      <Selectors
+        onMouseEnter={showSelectionBox}
+        onMouseExit={hideSelectionBox}
+        onSelectFwd={toggleSelectedItemFwd}
+        onSelectBack={toggleSelectedItemBack}
+        navCategory={navCategory}
+        selectedData={selectedData}
+        searchData={searchData}
+        selectedItem={selectedItem}
+        showDropdown={showDropdown}
+        path={path}
+        isVisible={isVisible}
+      />
+    </div>
+  );
+};
 
 export default IconSelector;

@@ -275,7 +275,9 @@ const Cards = ({
     const ref = cardRefs.current[id];
     if (ref) {
       const card = ref.current; // cardRefs has a current property and so does each ref stored in that array (yeah, confusing)
-      window.scrollTo({ top: card.offsetTop - 60, behavior: "smooth" });
+      if (card) {
+        window.scrollTo({ top: card.offsetTop - 60, behavior: "smooth" });
+      }
     }
   };
 

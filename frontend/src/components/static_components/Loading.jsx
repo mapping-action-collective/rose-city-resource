@@ -1,59 +1,43 @@
-import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const styles = {
   content: {
-    texAlign: 'center',
-    fontSize: '20px',
-    marginLeft: '10px',
-    color: '#2E3238'
+    texAlign: "center",
+    fontSize: "20px",
+    marginLeft: "10px",
+    color: "#2E3238"
   }
 };
 
-//this component was updated to include
-//the babel transform class properties
-class Loading extends React.PureComponent {
-  //this is where we add default props
-  static defaultProps = {
-    text: 'Loading',
-    speed: 300
-  };
+// TODO: we need a new way to apply the above JSX CSS styles
+const Loading = ({ text = "Loading", speed = 300 }) => {
+  const [content, setContent] = useState(text);
+  const stopper = text + "...";
 
-  state = {
-    //old way
-    //text: props.text
-    //new
-    text: this.props.text
-  };
-
-  componentDidMount() {
-    const { text, speed } = this.props;
-    const stopper = text + '...';
-
-    this.interval = window.setInterval(() => {
-      this.state.text === stopper
-        ? this.setState(() => ({ text: this.props.text }))
-        : this.setState(prevState => ({ text: prevState.text + '.' }));
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setContent((prevContent) =>
+        prevContent === stopper ? text : prevContent + "."
+      );
     }, speed);
-  }
 
-  componentWillUnmount() {
-    window.clearInterval(this.interval);
-  }
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [text, speed, stopper]);
 
-  render() {
-    return (
-      <div className="loading-container">
-        <FontAwesomeIcon
-          style={{ color: '#2E3238' }}
-          icon="spinner"
-          size="lg"
-          pulse
-        />
-        <p style={styles.content}>{this.state.text}</p>
-      </div>
-    );
-  }
-}
+  return (
+    <div className="loading-container">
+      <FontAwesomeIcon
+        style={{ color: "#2E3238" }}
+        icon="spinner"
+        size="lg"
+        pulse
+      />
+      <p style={styles.content}>{content}</p>
+    </div>
+  );
+};
 
 export default Loading;
