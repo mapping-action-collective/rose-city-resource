@@ -149,10 +149,10 @@ const SimpleMap = ({ updateListing, selectedListing, data }) => {
         url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
       />
       <MarkerClusterGroup showCoverageOnHover={false}>
-        {mapData?.map((item, index) => {
+        {mapData?.map((item) => {
           return (
             <Marker
-              key={`${item.popup.id}-${index}`}
+              key={item.popup.id}
               position={item.coords}
               id={item.popup.id}
               icon={

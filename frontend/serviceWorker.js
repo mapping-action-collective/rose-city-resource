@@ -29,15 +29,9 @@ self.addEventListener("fetch", async (event) => {
                       );
                     }
                   });
-                } else {
-                  console.info(
-                    "Cached data is up to date with the version published on ",
-                    updateDateFromNetwork
-                  );
                 }
               }
             }
-            console.log("Returning fetched response for ", event.request.url);
             cache.put(event.request, fetchedResponse.clone());
             return fetchedResponse;
           });
@@ -49,12 +43,10 @@ self.addEventListener("fetch", async (event) => {
       caches.open(cacheName).then((cache) => {
         return cache.match(event.request.url).then((cachedResponse) => {
           if (cachedResponse) {
-            console.log("Returning cached response for ", event.request.url);
             return cachedResponse;
           }
           return fetch(event.request).then((fetchedResponse) => {
             cache.put(event.request, fetchedResponse.clone());
-            console.log("Returning fetched response for ", event.request.url);
             return fetchedResponse;
           });
         });

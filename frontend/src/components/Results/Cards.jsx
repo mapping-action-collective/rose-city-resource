@@ -311,10 +311,10 @@ const Cards = ({
     <div className="cards-container">
       <CountBar savedDataId={savedDataId} data={data} />
 
-      {cardSortByDistance(data).map((record, index) => {
+      {cardSortByDistance(data).map((record) => {
         return (
           <Card
-            key={`${record.id}-${index}`}
+            key={record.id}
             record={record}
             selectedListing={selectedListing}
             updateListing={updateListing}

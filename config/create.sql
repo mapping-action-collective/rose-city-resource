@@ -146,8 +146,7 @@ DROP FUNCTION IF EXISTS etl_import_to_production;
 CREATE FUNCTION etl_import_to_production(out void) AS '
   DROP TABLE IF EXISTS production_data; CREATE TABLE production_data AS
   SELECT * FROM etl_staging_1;
-  DELETE FROM production_meta;
-  INSERT INTO production_meta (last_update) VALUES (NOW());
+  UPDATE production_meta SET last_update = NOW() WHERE id = 0;
   DELETE FROM etl_run_log;
 ' LANGUAGE sql;
 
