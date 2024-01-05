@@ -13,6 +13,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@react-leaflet/core": "^2.1.0",
     "@turf/distance": "^6.4.0",
+    "@vitejs/plugin-react": "^4.2.1",
     "eslint-config-prettier": "^9.1.0",
     "favicon": "0.0.2",
     "leaflet": "^1.9.4",
@@ -30,6 +31,7 @@
     "sanitize-html-react": "^1.13.0",
     "turf-point": "^2.0.1",
     "vite": "^5.0.10",
+    "vite-plugin-svgr": "^4.2.0",
     "webfontloader": "^1.6.28"
   },
   "scripts": {
@@ -56,14 +58,12 @@
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.8",
-    "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.55.0",
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^3.1.0",
-    "sass": "^1.69.5",
-    "vite-plugin-svgr": "^4.2.0"
+    "sass": "^1.69.5"
   }
 }
