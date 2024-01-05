@@ -5,36 +5,43 @@ self.addEventListener("fetch", async (event) => {
     event.respondWith(
       caches.open(cacheName).then((cache) => {
         return cache.match(event.request.url).then((cachedResponse) => {
-          return fetch(event.request).then(async (fetchedResponse) => {
-            if (
-              cachedResponse?.status === 200 &&
-              fetchedResponse.status === 200
-            ) {
-              const updateDateFromCache = (await cachedResponse.clone().json())
-                .last_update;
-              const updateDateFromNetwork = (
-                await fetchedResponse.clone().json()
-              ).last_update;
+          return fetch(event.request)
+            .then(async (fetchedResponse) => {
               if (
-                isDateValid(updateDateFromCache) &&
-                isDateValid(updateDateFromNetwork)
+                cachedResponse?.status === 200 &&
+                fetchedResponse.status === 200
               ) {
-                if (updateDateFromCache !== updateDateFromNetwork) {
-                  /* Clear the cache since the data version has changed */
-                  caches.delete(cacheName).then((status) => {
-                    if (status) {
-                      console.info(
-                        "Cached data updated to the version published on ",
-                        updateDateFromNetwork
-                      );
-                    }
-                  });
+                const updateDateFromCache = (
+                  await cachedResponse.clone().json()
+                ).last_update;
+                const updateDateFromNetwork = (
+                  await fetchedResponse.clone().json()
+                ).last_update;
+                if (
+                  isDateValid(updateDateFromCache) &&
+                  isDateValid(updateDateFromNetwork)
+                ) {
+                  if (updateDateFromCache !== updateDateFromNetwork) {
+                    /* Clear the cache since the data version has changed */
+                    caches.delete(cacheName).then((status) => {
+                      if (status) {
+                        console.info(
+                          "Cached data updated to the version published on ",
+                          updateDateFromNetwork
+                        );
+                      }
+                    });
+                  }
                 }
               }
-            }
-            cache.put(event.request, fetchedResponse.clone());
-            return fetchedResponse;
-          });
+              cache.put(event.request, fetchedResponse.clone());
+              return fetchedResponse;
+            })
+            .catch(() => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+            });
         });
       })
     );

@@ -5,40 +5,75 @@
       "zoom": 10
     },
     "attribution": "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a>",
-    "tileUrl": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+    "tileUrl": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+    "alternateTileUrl": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
   },
   "search": {
     "options": {
-      "enable": true,
-      "position": "topleft",
-      "placeholder": "Search...",
-      "keys": [
-        {
-          "name": "listing",
-          "weight": 1
-        },
-        {
-          "name": "main_category",
-          "weight": 1
-        },
-        {
-          "name": "general_category",
-          "weight": 1
-        },
-        {
-          "name": "service_description",
-          "weight": 1
-        }
-      ],
-      "useExtendedSearch": false,
-      "isCaseSensitive": false,
-      "includeMatches": true,
-      "shouldSort": true,
-      "findAllMatches": false,
-      "location": 0,
-      "threshold": 0.3,
-      "distance": 100,
-      "ignoreLocation": true
+      "main": {
+        "enable": true,
+        "position": "topleft",
+        "placeholder": "Search...",
+        "keys": [
+          {
+            "name": "listing",
+            "weight": 1
+          },
+          {
+            "name": "main_category",
+            "weight": 1
+          },
+          {
+            "name": "general_category",
+            "weight": 1
+          },
+          {
+            "name": "service_description",
+            "weight": 1
+          }
+        ],
+        "useExtendedSearch": false,
+        "isCaseSensitive": false,
+        "includeMatches": true,
+        "shouldSort": true,
+        "findAllMatches": false,
+        "location": 0,
+        "threshold": 0.3,
+        "distance": 100,
+        "ignoreLocation": true
+      },
+      "category": {
+        "enable": true,
+        "position": "topleft",
+        "placeholder": "Search...",
+        "keys": [
+          {
+            "name": "listing",
+            "weight": 1
+          },
+          {
+            "name": "main_category",
+            "weight": 1
+          },
+          {
+            "name": "general_category",
+            "weight": 1
+          },
+          {
+            "name": "service_description",
+            "weight": 1
+          }
+        ],
+        "useExtendedSearch": false,
+        "isCaseSensitive": false,
+        "includeMatches": true,
+        "shouldSort": true,
+        "findAllMatches": false,
+        "location": 0,
+        "threshold": 0.3,
+        "distance": 100,
+        "ignoreLocation": true
+      }
     }
   },
   "banner": {

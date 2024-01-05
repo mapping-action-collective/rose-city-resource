@@ -80,11 +80,9 @@ const App = () => {
   };
 
   const handleBrowserGeolocatorInput = async (records) => {
-    const { records: distanceRecords, currentCoords } =
+    const { records: distanceRecords } =
       await addUserDistancesToRecords(records);
-    if (currentCoords) {
-      setRecords(distanceRecords);
-    }
+    setRecords(distanceRecords);
   };
 
   useEffect(() => {

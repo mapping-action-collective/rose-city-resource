@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import queryString from "query-string";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,7 +11,6 @@ import "../../css/Results.css";
 
 const Results = (props) => {
   const [selectedListing, setSelectedListing] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [clickType, setClickType] = useState(null); //to keep track of how scroll should happen
 
   const location = useLocation();
@@ -31,10 +30,6 @@ const Results = (props) => {
 
   const { records } = props;
 
-  useEffect(() => {
-    setLoading(false);
-  }, []);
-
   /* Warning: removing useMemo here will cause a lot of UI glitching and bugginess in the map */
   const data = useMemo(
     () =>
@@ -44,7 +39,7 @@ const Results = (props) => {
         dataMap.parent,
         records
       ),
-    [dataMap.search, dataMap.category, dataMap.parent, records]
+    [dataMap.search, dataMap.category, dataMap.parent, records, location.search] // Location.search is included here to force a re-render when the URL changes, but we should refactor to a cleaner state management system so that we need fewer hacks
   );
 
   const { searchData, handleCardSave, handleSaveDelete, savedDataId } = props;
@@ -56,7 +51,7 @@ const Results = (props) => {
     }
   };
 
-  if (loading === true) {
+  if (!records) {
     return <div>Loading...</div>;
   }
 

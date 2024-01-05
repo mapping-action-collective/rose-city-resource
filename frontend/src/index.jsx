@@ -2,13 +2,12 @@ import React from "react";
 import { createRoot } from "react-dom/client"; // eslint-disable-line react/no-deprecated
 import WebFont from "webfontloader";
 import App from "./components/App";
-import { register } from "register-service-worker";
+//import { register } from "register-service-worker";
 import "./css/main.css";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster/dist/leaflet.markercluster.js";
-import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 
 // annoying hack to deal with webpack and marker icon
 // TODO: switch from using a default icon to always using a custom icon for markers
@@ -36,6 +35,10 @@ const rootElement = document.getElementById("root");
 createRoot(rootElement).render(<App />);
 
 /* Use a service worker to cache /api/query, if the ServiceWorker API is available */
-if ("serviceWorker" in navigator) {
-  register(`/serviceWorker.js`);
-}
+/* 
+  Note that this service worker seems to work fine, but until more thoroughly tested,
+  it is commented out.
+*/
+// if ("serviceWorker" in navigator) {
+//   register(`/serviceWorker.js`);
+// }

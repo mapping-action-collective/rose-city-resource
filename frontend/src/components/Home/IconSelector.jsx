@@ -325,10 +325,12 @@ const IconSelector = ({ searchData, path, isVisible }) => {
   };
 
   const showSelectionBox = (selectedItem, searchData) => {
-    const selectedData = searchData.main[selectedItem];
+    if (searchData) {
+      const selectedData = searchData.main[selectedItem];
+      setSelectedData(selectedData);
+    }
     setNavCategory("general_category");
     setSelectedItem(selectedItem);
-    setSelectedData(selectedData);
     setShowDropdown(true);
   };
 

@@ -350,6 +350,7 @@ function getCenter(latArr, lonArr, defaultArr) {
 //check if parent or category vals in records
 //helper for getFilteredrecords
 function getFilteredCatParentData(categoryVals, parentVals, records) {
+  // TODO:   return fuzzySearch(searchValue, records, config.search.options.main);
   const checkVals = [
     // ...handleArray(searchVals),
     ...handleArray(categoryVals),
@@ -382,19 +383,20 @@ function getFilteredCatParentData(categoryVals, parentVals, records) {
 function getFilteredSearchData(searchValue, records) {
   if (!records || records.length === 0) return [];
   if (!searchValue || searchValue === "") return [];
+  return fuzzySearch(searchValue, records, config.search.options.main);
+}
 
-  const fuse = new Fuse(records, config.search.options);
+function fuzzySearch(searchTerm, records, options) {
+  const fuse = new Fuse(records, options);
   // const t0 = performance.now();
-  const fuseResults = fuse.search(searchValue);
+  const fuseResults = fuse.search(searchTerm);
   // const t1 = performance.now();
   // console.log(
-  //   `Fuzzy search for '${searchValue}' took ${t1 - t0} ms for ${
+  //   `Fuzzy search for '${searchTerm}' took ${t1 - t0} ms for ${
   //     fuseResults.length
   //   } results}`
   // );
-  const resultRecords = fuseResults.map((result) => result.item);
-
-  return resultRecords;
+  return fuseResults.map((result) => result.item);
 }
 
 //function to deal with 'NA' values

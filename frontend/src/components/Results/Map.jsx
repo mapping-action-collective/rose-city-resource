@@ -8,7 +8,7 @@ import {
   Tooltip,
   useMapEvents
 } from "react-leaflet";
-import Geocoder from "./Geocoder.jsx";
+import LeafletControlGeocoder from "./Geocoder.jsx";
 import { MarkerClusterGroup } from "./MarkerClusterGroup.jsx";
 import MediaQuery from "react-responsive";
 import { mapDataBuilder } from "../../utils/api.js";
@@ -72,8 +72,9 @@ const SimpleMap = ({ updateListing, selectedListing, data }) => {
   const [leafletMap, setLeafletMap] = useState(null);
 
   const handleGeocode = (e) => {
-    const coords = [e.lat, e.lng];
-    setViewport(setViewport({ zoom: viewport.zoom, center: coords }));
+    const { center } = e;
+    //setBounds(newBounds);
+    setViewport({ ...viewport, center });
   };
 
   /* Update the map when map data changes */
@@ -94,6 +95,7 @@ const SimpleMap = ({ updateListing, selectedListing, data }) => {
       if (boundList.length > 0) {
         if (selectedListing) {
           if (newMapData.length > 0) {
+            // TODO: pass bounds to the map instead?
             if (leafletMap) leafletMap.fitBounds(boundList);
           }
         } else {
@@ -184,10 +186,7 @@ const SimpleMap = ({ updateListing, selectedListing, data }) => {
           );
         })}
       </MarkerClusterGroup>
-      <Geocoder
-        placeholder={"Search address..."}
-        handleGeocode={handleGeocode}
-      />
+      <LeafletControlGeocoder setViewport={setViewport} />
     </MapContainer>
   );
 };
