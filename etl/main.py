@@ -4,7 +4,7 @@ import os
 import json
 from airtable import Airtable
 import pandas
-#from geopy.geocoders import GoogleV3
+from geopy.geocoders import GoogleV3
 from geopy.geocoders import Nominatim
 import re
 from pathlib import Path
@@ -13,8 +13,16 @@ from dotenv import load_dotenv
 dotenv_path = Path('../backend/.env')
 load_dotenv(dotenv_path=dotenv_path)
 
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
+
+if GOOGLE_API_KEY == None or GOOGLE_API_KEY == '':
+    print('The Google API key is missing')
+    sys.exit(10)
+
+geolocator = GoogleV3(api_key=os.environ.get('GOOGLE_API_KEY'))
+
 # https://operations.osmfoundation.org/policies/nominatim/
-geolocator = Nominatim(user_agent="rose-city-resource")
+#geolocator = Nominatim(user_agent="rose-city-resource")
 
 MAX_RECORDS = 9999
 
