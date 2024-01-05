@@ -29,6 +29,7 @@
     "react-transition-group": "^4.4.2",
     "sanitize-html-react": "^1.13.0",
     "turf-point": "^2.0.1",
+    "vite": "^5.0.10",
     "webfontloader": "^1.6.28"
   },
   "scripts": {
@@ -63,7 +64,6 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^3.1.0",
     "sass": "^1.69.5",
-    "vite": "^5.0.8",
     "vite-plugin-svgr": "^4.2.0"
   }
 }
