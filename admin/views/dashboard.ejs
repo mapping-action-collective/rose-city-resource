@@ -562,18 +562,20 @@
 
       /* Fetch and display ETL status */
       const status = await fetchEtlStatus();
-      renderEtlStatus(status);
+      if (status) {
+        renderEtlStatus(status);
 
-      /* Enable import to live site button */
-      const started = status.etl_started.toLowerCase();
-      const completed = status.etl_ran_to_completion.toLowerCase();
-      const minutes = parseInt(status.minutes_since_last_log);
-      const numrows = parseInt(status.etl_staging_1_num_rows);
-      if (started === 'true' && completed === 'true' && minutes < 60 * 48 && numrows > 1) {
-        const button = $('#import-live').removeClass('disabled')
-      }
-      else {
-        const button = $('#import-live').addClass('disabled')
+        /* Enable import to live site button */
+        const started = status.etl_started.toLowerCase();
+        const completed = status.etl_ran_to_completion.toLowerCase();
+        const minutes = parseInt(status.minutes_since_last_log);
+        const numrows = parseInt(status.etl_staging_1_num_rows);
+        if (started === 'true' && completed === 'true' && minutes < 60 * 48 && numrows > 1) {
+          const button = $('#import-live').removeClass('disabled')
+        }
+        else {
+          const button = $('#import-live').addClass('disabled')
+        }
       }
 
     }, 5000)

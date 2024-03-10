@@ -39,7 +39,7 @@ const PrimaryIconsLarge = ({
         </div>
         {showDropdown ? (
           <div className="icons-dropdown-container">
-            {Object.keys(selectedData).map((selection) => {
+            {Object.keys(selectedData)?.map((selection) => {
               return (
                 <Link
                   key={selection}
