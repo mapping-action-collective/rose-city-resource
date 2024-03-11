@@ -1,5 +1,6 @@
 import { findDistance, inOutLocation } from "./distance";
-import config from '../config.json';
+import Fuse from "fuse.js";
+import config from "../config.json";
 
 let _previewMode = false;
 
@@ -40,7 +41,7 @@ export async function addUserDistancesToRecords(records) {
     }
 
     // Calculate the distance between the user's location and the geolocation of each listing and add to the listing
-    for (let i = 0; i < records.length; i++) {
+    for (let i = 0; i < records?.length; i++) {
       if (records[i].lat === "" || records[i].lon === "") {
         records[i].distance = null;
         continue;
@@ -67,17 +68,15 @@ export async function addUserDistancesToRecords(records) {
 export async function getRecords() {
   if (getQueryStringParameterValue("preview") === "true") {
     _previewMode = true;
-    console.info('Preview mode enabled.')
+    console.info("Preview mode enabled.");
   }
 
-  const uri =
-    _previewMode
-      ? "/api/query-staging"
-      : "/api/query";
+  const uri = _previewMode ? "/api/query-staging" : "/api/query";
 
   try {
     const queryResponse = await fetch(uri);
     const records = await queryResponse.json();
+
     if (!queryResponse.ok) {
       console.error("Server error: " + queryResponse.statusText);
     }
@@ -200,7 +199,7 @@ export function getMainSearchData(records) {
     "Work",
     "Legal",
     "Day Services",
-    "Specialized Assistance",
+    "Specialized Assistance"
   ];
 
   const mainCats = genCats.map((cat) => {
@@ -237,12 +236,12 @@ export function cardPhoneTextFilter(record) {
       if (number?.includes(":")) {
         return {
           type: number.split(":")[0],
-          phone: number.split(":")[1],
+          phone: number.split(":")[1]
         };
       } else {
         return {
           type: "Contact",
-          phone: number,
+          phone: number
         };
       }
     });
@@ -265,15 +264,16 @@ export function cardWebAddressFixer(webAddress) {
 //function to build the map data object
 export function mapDataBuilder(records) {
   const defaultCenter = config.map.default.center;
-
   if (
     records === null ||
     records === undefined ||
     !(records instanceof Array) ||
+    !records.some((record) => typeof record === "object") ||
     records.length === 0
   ) {
     return { mapData: null, center: defaultCenter };
   }
+
   const mapData = records.map((record) => {
     if (record.lat !== "" && record.lon !== "") {
       const coords = [Number(record.lat), Number(record.lon)];
@@ -285,8 +285,8 @@ export function mapDataBuilder(records) {
           street,
           street2: cardTextFilter(street2),
           hours: cardTextFilter(hours),
-          id,
-        },
+          id
+        }
       };
     } else {
       return null;
@@ -350,12 +350,13 @@ function getCenter(latArr, lonArr, defaultArr) {
 //check if parent or category vals in records
 //helper for getFilteredrecords
 function getFilteredCatParentData(categoryVals, parentVals, records) {
+  // TODO:   return fuzzySearch(searchValue, records, config.search.options.main);
   const checkVals = [
     // ...handleArray(searchVals),
     ...handleArray(categoryVals),
-    ...handleArray(parentVals),
+    ...handleArray(parentVals)
   ].filter((el) => el !== null);
-  const filteredRecords = []
+  const filteredRecords = [];
   records.forEach((record) => {
     //create another array to see if checkVals are in
     //the nodeVals
@@ -363,7 +364,7 @@ function getFilteredCatParentData(categoryVals, parentVals, records) {
       record.listing,
       record.parent_organization,
       record.main_category,
-      record.general_category,
+      record.general_category
     ];
     //check to see if any values in one array are in the other array
     //and if so return the record
@@ -373,57 +374,29 @@ function getFilteredCatParentData(categoryVals, parentVals, records) {
         record.city,
         record.postal_code
       );
-      filteredRecords.push(record)
+      filteredRecords.push(record);
     }
-  })
+  });
   return filteredRecords;
 }
 
-//check if a search value is in the NODE record
-//this function is gonna be used for individual searches
-//helper for getFilteredrecords
 function getFilteredSearchData(searchValue, records) {
-  if (
-    records === null ||
-    records === undefined ||
-    !(records instanceof Array) ||
-    records.length === 0
-  ) {
-    return null;
-  }
-  // I don't think we need this any more
-  // //Polyfill from SO to use toLowerCase()
-  // if (!String.toLowerCase) {
-  //   String.toLowerCase = function (s) {
-  //     return String(s).toLowerCase();
-  //   };
-  // }
+  if (!records || records.length === 0) return [];
+  if (!searchValue || searchValue === "") return [];
+  return fuzzySearch(searchValue, records, config.search.options.main);
+}
 
-  const filterData = records.map((record) => {
-    const recordValsLower = Object.values(record).map(
-      (val) => {
-        return String(val).toLowerCase();
-      } //I miss R
-    );
-
-    // Text search was quite slow, so a Set helps a bit
-    // We should use some type of fuzzy matching to enhance this
-    const recordSet = new Set(recordValsLower);
-    const searchValueLower = String(searchValue).toLowerCase();
-
-    if (recordSet.has(searchValueLower)) {
-      record.directionsUrl = directionsUrlBuilder(
-        record.street,
-        record.city,
-        record.postal_code
-      );
-      return record;
-    } else {
-      return null;
-    }
-  });
-  // remove the undefined els from the list
-  return filterData.filter((el) => el);
+function fuzzySearch(searchTerm, records, options) {
+  const fuse = new Fuse(records, options);
+  // const t0 = performance.now();
+  const fuseResults = fuse.search(searchTerm);
+  // const t1 = performance.now();
+  // console.log(
+  //   `Fuzzy search for '${searchTerm}' took ${t1 - t0} ms for ${
+  //     fuseResults.length
+  //   } results}`
+  // );
+  return fuseResults.map((result) => result.item);
 }
 
 //function to deal with 'NA' values
@@ -475,9 +448,6 @@ export function isPreviewMode() {
 //function to generate query
 //for detaisl page
 export function detailsQueryBuilder(savedIds) {
-  // if(savedIds.length===0){
-  //   alert('No saved listings.')
-  // }
   const queryDetailString = savedIds.join("&saved=");
   return `saved=${queryDetailString}`;
 }

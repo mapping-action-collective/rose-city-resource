@@ -85,7 +85,7 @@ DROP FUNCTION IF EXISTS etl_merge_import_tables;
 CREATE FUNCTION etl_merge_import_tables(out void) AS $$
   DROP TABLE IF EXISTS etl_staging_1; CREATE TABLE etl_staging_1 AS
 	  SELECT general_category, main_category, I5.name as parent_organization,
-	  I4.listing_organization as listing, service_description, covid_message,
+	  I4.listing_organization as listing, service_description,
 	  I3.street, street2, city, postal_code, website, hours, COALESCE(I1.lon, '') as lon, COALESCE(I1.lat, '') as lat,
 	  REGEXP_REPLACE(
 	    REGEXP_REPLACE((
@@ -146,8 +146,7 @@ DROP FUNCTION IF EXISTS etl_import_to_production;
 CREATE FUNCTION etl_import_to_production(out void) AS '
   DROP TABLE IF EXISTS production_data; CREATE TABLE production_data AS
   SELECT * FROM etl_staging_1;
-  DELETE FROM production_meta;
-  INSERT INTO production_meta (last_update) VALUES (NOW());
+  UPDATE production_meta SET last_update = NOW() WHERE id = 0;
   DELETE FROM etl_run_log;
 ' LANGUAGE sql;
 
@@ -171,4 +170,5 @@ CREATE FUNCTION change_password(in _email character varying (128), in _password 
   WHERE email = _email;
 ' LANGUAGE sql;
 
+/* Now that we're using Nominatim, we can consider caching the geocodes */
 CREATE TABLE geocodes (street TEXT, city TEXT, postal_code TEXT, lat TEXT, lon TEXT)

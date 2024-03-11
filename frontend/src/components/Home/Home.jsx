@@ -1,7 +1,6 @@
-//import React from 'react';
-import IconSelector from './IconSelector';
-import { SearchBar } from './SearchBar';
-import '../../css/Home.css';
+import IconSelector from "./IconSelector";
+import { SearchBar } from "./SearchBar";
+import "../../css/Home.css";
 
 const BasicInstructions = () => {
   return (
@@ -12,8 +11,7 @@ const BasicInstructions = () => {
   );
 };
 
-const Home = props => {
-
+const Home = (props) => {
   const { searchData, records } = props; //grab match from React Router to pass to any of the links that need it.
 
   return (
@@ -31,13 +29,13 @@ const Home = props => {
           <IconSelector
             records={props.records}
             searchData={searchData}
-            path={'/results'}
+            path={"/results"}
             isVisible={true}
           />
         </div>
       </div>
     </section>
   );
-}
+};
 
 export default Home;

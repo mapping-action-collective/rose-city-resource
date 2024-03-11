@@ -17,9 +17,8 @@ NOTE: the following environment variables must be present in order to run the se
 AIRTABLE_API_KEY='The airtable API key'
 AIRTABLE_BASE_ID='The airtable base ID'
 DATABASE_URL='The fully-qualified Heroku Database URL'
-GOOGLE_API_KEY='The Google API key'
 
-(These can be added to an .env file in the root directory)
+(These can be added to an .env file in the backend directory)
 ```
 
 ETL IMPORT: import Python modules to enable running the ETL import script
